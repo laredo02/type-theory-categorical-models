@@ -1,0 +1,8 @@
+
+auto/
+
+lambda-calculus.prv/
+
+*.aux
+*.log
+
