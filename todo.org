@@ -1,7 +1,7 @@
 #+TITLE: Type Theory and Categorical Semantics: A Unified Approach
 #+AUTHOR: Miguel Laredo
 
-* Chapter 1: Lambda Calculus & Type Systems  
+* Part 1: Lambda Calculus & Type Systems  
 ** From Untyped to Dependent Types  
 *** 1. Untyped Lambda Calculus  
     - Syntax: \lambda, application, variables  
@@ -26,7 +26,7 @@
     - Inductive types (Nats, Lists)  
     - Example: Vectors (Vec A n), certified sorting  
 
-* Chapter 2: Logic & the Curry-Howard Isomorphism  
+* Part 2: Logic & the Curry-Howard Isomorphism  
 ** From Proofs to Programs  
 *** 1. Propositional Logic  
     - Natural deduction: →, ∧, ∨, ⊥ rules  
@@ -49,7 +49,7 @@
     - Cut elimination ≈ β-reduction  
     - Normalization ≈ program termination  
 
-* Chapter 3: Categorical Semantics  
+* Part 3: Categorical Semantics  
 ** Types as Objects, Programs as Morphisms  
 *** 1. Categories of Types
     - Cartesian Closed Categories (CCC) for STLC:  
