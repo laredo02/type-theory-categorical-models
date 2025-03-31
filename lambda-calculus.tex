@@ -25,17 +25,27 @@
 \theoremstyle{remark}
 \newtheorem{remark}{Remark}
 
+
+\title{Type Theory and Categorical Models: A Unified Approach}
+\author{Miguel Laredo}
+
 \begin{document}
+
+\maketitle
+\tableofcontents
+
 
 \chapter{\lCalc}
 
+
+
 The \lcalc \ is one of the first formal attempts to define computation, doing so through the concept of a function. An intuitive definition of a function might be: a mathematical object that takes an input and returns an output—simple yet capturing the abstract nature of functions. Depending on the context, different formal systems can be used to describe what a function does and, in some cases, how it does it.
 
-This distinction between what a function does and how it does it is a crucial aspect of computation. Understanding when two functions can be considered equivalent is fundamental to the theory of computation, as it allows us to reason about different implementations of the same underlying behavior. Prior to the development of lambda calculus, the equivalence of functions was understood in terms of the equivalence of input-output pairs. In other words, if two functions that share the same domain, $f$ and $g$, return the same output for every possible input, then $f$ and $g$ are considered equivalent. The \lcalc \ extends this notion of equivalence, known as denotational equivalence, by providing a deeper insight into how functions behave. It introduces the concept of operational equivalence—the idea that two functions are equivalent if they operate in the same step by step, that is, if they exhibit the same computational behavior or reduce in the same way during evaluation.
+This distinction between what a function does and how it does it is a crucial aspect of computation. Which is why, understanding when two functions can be considered equivalent is fundamental to the theory of computation, as it allows us to reason about different implementations of the same underlying behavior. Prior to the development of lambda calculus, the equivalence of functions was understood in terms of the equivalence of input-output pairs. In other words, if two functions that share the same domain, $f$ and $g$, return the same output for every possible input, then $f$ and $g$ are considered equivalent. The \lcalc \ extends this notion of equivalence, known as denotational equivalence, by providing a deeper insight into how functions behave. It introduces the concept of operational equivalence—the idea that two functions are equivalent if they operate in the same step by step, that is, if they exhibit the same computational behavior or reduce in the same way during evaluation.
 
 As a historical note and to give credit where credit is due, the lambda calculus was invented by Alonzo Church and Stephen Kleene during the 1930s. Since its inception, it has been used to explore the limits of computability and decidability, establish the core principles of the functional programming paradigm, and advance the study of formal systems and proof theory.
 
-\section*{\centering Untyped \lCalc}
+\section{\centering Untyped \lCalc}
 
 In order to gain a better understanding of what the \lcalc \ is all about, let us develop a simple example to familiarize ourselves before we begin with a more formal approach to this discipline. Consider the function $f(x) = x + 1$, the most straightforward way to express this using \lcalc \ would be $(\lambda x . x + 1 )$, \footnote{ This example abuses notation in the pursuit of understanding, the \lcalc \ only allows expressions of the form defined in \ref{def:lambda-terms} } where the lambda denotes that $x$ is being captured and used as a parameter to perform some computation. Evaluating $f(2)$ using this newly created lambda term would look like this: $(\lambda x . x + 1)(2) \curly (2 + 1) \curly 3$. This process of reducing a \la-expression is referred to as $\beta$ reduction.\\
 
@@ -51,7 +61,7 @@ Another concept that might be worth-while glancing over, is what in the jargon i
 
 If we take a close look, at $A$, we notice the term applies $f$ to $x$ twice, and that as a consequence, $B$ is being applied to $C$ twice. And so, very easily, we have implemented the $ x + 2 $ function by extending our definition for $x + 1$.
 
-\subsection*{\centering
+\subsection{\centering
   Lambda Terms}
 
 Having established a basic intuition behind the lambda calculus, let us define $\mathbb{V} = \{x, y, z, ...\}$, as the set of all possible variable names, this set is of little real importance, but a must-have in order to formalize some of the upcoming definitions.
@@ -105,10 +115,10 @@ Where $x \in \mathbb{V}$ and $M, N \in \Lambda $.
   A term $M \in \Lambda$ is closed if and only if $\FV M = \emptyset$, closed lambda terms are often referred to as combinators. $\Lambda^0$ is the set of all closed lambda terms.
 \end{definition}
 
-\subsection*{\centering Fixed Point Combinators and Recursion}
+\subsection{\centering Fixed Point Combinators and Recursion}
 
 
-\section*{\centering Simply Typed \lCalc}
+\section{\centering Simply Typed \lCalc}
 
 The Untyped Lambda Calculus in computationally equivalent to a  Turing machine. However, with great computational power comes limited decidability of properties, leading to non-termination, or expressions such as $x(\lambda y . y)$, whose meaning is unclear.
 
