@@ -63,11 +63,11 @@
       + Σ-types ≈ left adjoints  
     - Fibrations for predicate logic  
 
-*** 3. Parametricity as Naturality  
+*** 3. Parametricity as Naturality [Maybe]  
     - Reynolds’ abstraction theorem ≈ dinaturality  
     - Polymorphic functions as natural transformations  
 
-*** 4. Advanced Topics (Optional) [Maybe]
+*** 4. Advanced Topics [Maybe]
     - Monads/comonads for effects  
     - Homotopy Type Theory (univalence)  
 
