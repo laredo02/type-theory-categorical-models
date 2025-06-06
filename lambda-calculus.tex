@@ -1,5 +1,3 @@
-
-
 \documentclass[12pt]{book}
 
 \usepackage[a4paper, margin=2.5cm]{geometry}
@@ -11,6 +9,7 @@
 \newcommand{\lCalc}{$\lambda$-Calculus}
 \newcommand{\lcalc}{$\lambda$-calculus}
 \newcommand{\la}{$\lambda$}
+\newcommand{\bred}{$\beta$-reduction}
 \newcommand{\functionfont}[1]{\mathbf{#1}}
 \newcommand{\curly}{\mathrel{\leadsto}}
 \newcommand{\Sub}[1]{\functionfont {Sub}(#1)}
@@ -39,18 +38,22 @@
 
 
 
-The \lcalc \ is one of the first formal attempts to define computation, doing so through the concept of a function. An intuitive definition of a function might be: a mathematical object that takes an input and returns an output—simple yet capturing the abstract nature of functions. Depending on the context, different formal systems can be used to describe what a function does and, in some cases, how it does it.
-
-This distinction between what a function does and how it does it is a crucial aspect of computation. Which is why, understanding when two functions can be considered equivalent is fundamental to the theory of computation, as it allows us to reason about different implementations of the same underlying behavior. Prior to the development of lambda calculus, the equivalence of functions was understood in terms of the equivalence of input-output pairs. In other words, if two functions that share the same domain, $f$ and $g$, return the same output for every possible input, then $f$ and $g$ are considered equivalent. The \lcalc \ extends this notion of equivalence, known as denotational equivalence, by providing a deeper insight into how functions behave. It introduces the concept of operational equivalence—the idea that two functions are equivalent if they operate in the same step by step, that is, if they exhibit the same computational behavior or reduce in the same way during evaluation.
-
-As a historical note and to give credit where credit is due, the lambda calculus was invented by Alonzo Church and Stephen Kleene during the 1930s. Since its inception, it has been used to explore the limits of computability and decidability, establish the core principles of the functional programming paradigm, and advance the study of formal systems and proof theory.
-
 \section{\centering Untyped \lCalc}
 
-In order to gain a better understanding of what the \lcalc \ is all about, let us develop a simple example to familiarize ourselves before we begin with a more formal approach to this discipline. Consider the function $f(x) = x + 1$, the most straightforward way to express this using \lcalc \ would be $(\lambda x . x + 1 )$, \footnote{ This example abuses notation in the pursuit of understanding, the \lcalc \ only allows expressions of the form defined in \ref{def:lambda-terms} } where the lambda denotes that $x$ is being captured and used as a parameter to perform some computation. Evaluating $f(2)$ using this newly created lambda term would look like this: $(\lambda x . x + 1)(2) \curly (2 + 1) \curly 3$. This process of reducing a \la-expression is referred to as $\beta$ reduction.\\
+\\
+In order to get acquainted with the \lcalc, let us develop a simple example to familiarize ourselves before we begin with a more formal approach to this discipline. Consider the function $f(x) = x + 1$, the most straightforward way to express this using \lcalc \ would be $(\lambda x . x + 1 )$, \footnote{ This example abuses notation in the pursuit of understanding, the \lcalc \ only allows expressions of the form defined in \ref{def:lambda-terms} } where the lambda denotes that $x$ is being captured and used as a parameter to perform some computation. Evaluating $f(2)$ using this newly created lambda term would look like this: $(\lambda x . x + 1)(2) \curly (2 + 1) \curly 3$. This process of reducing a \la-expression is referred to as \bred, it will be covered formally later in the chapter.
 
-Another concept that might be worth-while glancing over, is what in the jargon is referred to as first-class citizenship, or more formally high-order. A $\lambda$-term being high-order, refers to the idea that terms (functions) are treated indistinguisably from terms (arguments). See what I did there, yes, that is exactly what high-order means. One can intuitively apreciate the computational expresivenes this brings with it, nevertheless, let us show how this can be useful: Consider now the reduction procedure of the following lambda term:
+The set of lambda terms \( \Lambda \) is defined inductively as follows:
 
+\begin{itemize}
+  \item \textbf{Variables:} If \( x \) is a variable, then \( x \in \Lambda \).
+  
+  \item \textbf{Abstraction:} If \( x \) is a variable and \( M \in \Lambda \), then \( (\lambda x. M) \in \Lambda \).
+  
+  \item \textbf{Application:} If \( M, N \in \Lambda \), then \( (M\ N) \in \Lambda \).
+\end{itemize}
+
+Another concept that might be worth-while glancing over, is what in the jargon is referred to as first-class citizenship, or more formally high-order. When we use high-order to refer to a \la-term, we refer to the fact that both functions and arguments are treated indistiguishably, the example below sheds some light on the matter:
 \begin{align*}
   \overbrace { (\lambda f . \lambda y . f f y) }^{A} \overbrace{ (\lambda x . x + 1) }^{B} \overbrace{(2)}^{C}
   &\curly (\lambda y .(\lambda x . x + 1) (\lambda x . x + 1)y)(2) \\
@@ -58,13 +61,15 @@ Another concept that might be worth-while glancing over, is what in the jargon i
   &\curly (\lambda x . x + 1) (3) \\
   &\curly (4)
 \end{align*}
-
-If we take a close look, at $A$, we notice the term applies $f$ to $x$ twice, and that as a consequence, $B$ is being applied to $C$ twice. And so, very easily, we have implemented the $ x + 2 $ function by extending our definition for $x + 1$.
+Taking a closer look, $A$, applies $f$ twice to $x$, as a consequence, $B$ is being applied twice to $C$. And so, very easily, we have implemented the $ x + 2 $ function via a sequential application of $x + 1$ to $C$. One can intuitively apreciate the computational expresivenes this brings with it, and how the sintactic-semantic homogeneity sets the \lcalc \ apart from the classical set-theoretic approach to functions.
 
 \subsection{\centering
   Lambda Terms}
 
-Having established a basic intuition behind the lambda calculus, let us define $\mathbb{V} = \{x, y, z, ...\}$, as the set of all possible variable names, this set is of little real importance, but a must-have in order to formalize some of the upcoming definitions.
+Having established a basic intuition behind the lambda calculus, let us begin to formalize the basic notions that e
+
+
+define $\mathbb{V} = \{x, y, z, ...\}$, as the set of all possible variable names, a set of little real importance, but a must-have in order to formalize some of the upcoming definitions.
 \begin{definition} \textbf{($\mathbf{\Lambda}$; The Set of all $\mathbf{\lambda}$-terms)}: The language for expressions in the lambda calculus can be defined using a grammar in BNF notation like this:
   \label{def:lambda-terms}
   \[
@@ -145,3 +150,8 @@ Having grasped the untyped lambda calculus's Turing completeness and ability to 
 
 
 
+
+%%% Local Variables:
+%%% mode: LaTeX
+%%% TeX-master: t
+%%% End:
