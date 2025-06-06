@@ -1,4 +1,6 @@
-# Part 1: Lambda Calculus & Type Systems (From Untyped to Dependent Types)
+
+
+# Part 1: Lambda Calculus & Type Systems
 
 ## 1. Untyped Lambda Calculus
 - Syntax: \lambda, application, variables
@@ -23,7 +25,7 @@
 - Inductive types (Nats, Lists)
 - Example: Vectors (Vec A n), certified sorting
 
-# Part 2: Logic & the Curry-Howard Isomorphism (From Proofs to Programs)
+# Part 2: Logic & the Curry-Howard Isomorphism
 
 ## 1. Propositional Logic
 - Natural deduction: →, ∧, ∨, ⊥ rules
