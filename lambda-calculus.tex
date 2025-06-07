@@ -1,59 +1,146 @@
 \documentclass[12pt]{book}
 
-\usepackage[a4paper, margin=3cm]{geometry}
+\usepackage[a4paper, margin=4cm]{geometry}
 \usepackage[english]{babel}
-\usepackage{amsmath, amssymb, amsthm}
+\usepackage{amsmath, amssymb, amsthm, syntax}
 
-\pagenumbering{gobble} % Removes page numbers
+% Math notation for math blocks
+\newcommand{\la}{\lambda}
+\newcommand{\La}{\Lambda}
+\newcommand{\Vset}{V}
 
-\newcommand{\lCalc}{$\lambda$-Calculus}
-\newcommand{\lcalc}{$\lambda$-calculus}
-\newcommand{\la}{$\lambda$}
+\newcommand{\lCalc}{$\la$-Calculus}
+\newcommand{\lcalc}{$\la$-calculus}
 \newcommand{\bred}{$\beta$-reduction}
+\newcommand{\lterm}{$\la$-term}
+\newcommand{\lterms}{$\la$-terms}
+\newcommand{\lexpr}{$\la$-expression}
+
 \newcommand{\functionfont}[1]{\mathbf{#1}}
 \newcommand{\curly}{\mathrel{\leadsto}}
-\newcommand{\Sub}[1]{\functionfont {Sub}(#1)}
-\newcommand{\FV}[1]{\functionfont {FV}(#1)}
+\newcommand{\Sub}[1]{\functionfont{Sub}(#1)}
+\newcommand{\Subb}{\functionfont{Sub}}
+\newcommand{\FV}[1]{\functionfont{FV}(#1)}
+\newcommand{\FVV}{\functionfont{FV}}
 
+% Theorems and lemmas
 \theoremstyle{plain}
 \newtheorem{theorem}{Theorem}[section]
 \theoremstyle{definition}
 \newtheorem{definition}{Definition}[section]
 \theoremstyle{definition}
 \newtheorem{example}{Example}[section]
-\theoremstyle{remark}
-\newtheorem{remark}{Remark}
-
+\theoremstyle{definition}
+\newtheorem*{remark}{Remark}
 
 \title{Type Theory and Categorical Models: A Unified Approach}
 \author{Miguel Laredo}
 
 \begin{document}
 
-\maketitle
-\tableofcontents
-
-
 \chapter{\lCalc}
 
-
-
 \section{\centering Untyped \lCalc}
+In order to get acquainted with the \lcalc, let us develop a simple example to familiarize ourselves before we begin with a more formal approach to this discipline. Consider the function $f(x) = x + 1$, the most straightforward way to express this using \lcalc \ would be $(\la x . x + 1 )$, where the lambda denotes that $x$ is being captured and used as a parameter to perform some computation \footnote{this is an e.g., $(\la x . x + 1 )$ is not a valid lambda term, see Definition \ref{def:lambda-terms-2}.}. Evaluating $f(2)$ using this newly created lambda term would look like this: $(\la x . x + 1)(2) \curly (2 + 1) \curly 3$. This process of reducing a $\la$-expression is referred to as \bred, it will be covered formally later in the chapter.
+\begin{definition} The set of lambda terms \( \La \) is defined inductively as follows:
+  \label{def:lambda-terms-1}
+  \begin{itemize}
+  \item (Variable) If \( x \in \Vset \), then \( x \in \La \).  
+  \item (Abstraction) If \( x \in \Vset \) and \( M \in \La \), then \( (\la x. M) \in \La \).
+  \item (Application) If \( M, N \in \La \), then \((M N) \in \La \).
+  \end{itemize}
+  Where $\Vset = \{x, y, z, ... \}$ represents a countably infinite set of variable names.
+\end{definition}
+The key takeaway of this definition is that abstraction and application together, encapsulate the meaning of function in a way that when combined with \bred \ allows us to perform computation.
 
-\\
-In order to get acquainted with the \lcalc, let us develop a simple example to familiarize ourselves before we begin with a more formal approach to this discipline. Consider the function $f(x) = x + 1$, the most straightforward way to express this using \lcalc \ would be $(\lambda x . x + 1 )$, \footnote{ This example abuses notation in the pursuit of understanding, the \lcalc \ only allows expressions of the form defined in \ref{def:lambda-terms} } where the lambda denotes that $x$ is being captured and used as a parameter to perform some computation. Evaluating $f(2)$ using this newly created lambda term would look like this: $(\lambda x . x + 1)(2) \curly (2 + 1) \curly 3$. This process of reducing a \la-expression is referred to as \bred, it will be covered formally later in the chapter.
-
-The set of lambda terms \( \Lambda \) is defined inductively as follows:
-
+Since we are dealing with a formal language, it is in our benefit to introduce a few other objects with the aim of defining a grammar to generate the set $\La$:
 \begin{itemize}
-  \item \textbf{Variables:} If \( x \) is a variable, then \( x \in \Lambda \).
-  
-  \item \textbf{Abstraction:} If \( x \) is a variable and \( M \in \Lambda \), then \( (\lambda x. M) \in \Lambda \).
-  
-  \item \textbf{Application:} If \( M, N \in \Lambda \), then \( (M\ N) \in \Lambda \).
+\item An alphabet \( \Sigma = \{ \la, ., (, ), \ldots \} \), is a finite set of symbols
+\item A string is a finite sequence of elements from \( \Sigma \), the empty string is denoted by \( \varepsilon \)
+\item \( \Sigma^* \) denotes the set of all finite strings over \( \Sigma \), \( \varepsilon \in \Sigma^* \)
+\item A language \( L \) over an alphabet \( \Sigma \) is a subset of \( \Sigma^* \)
 \end{itemize}
+Our aim now, to generate the set $\La$,  to do this, we will make use of a grammar. When dealing with grammars that define programming languages i.e. context-free grammars, Backus-Naur Form is the way to go:
+\begin{itemize}
+\item Nonterminals are enclosed in angle brackets (e.g. \texttt{<expr>})
+\item Terminals are written literally (e.g. \texttt{"$\lambda$"}, \texttt{"."}, $x$)
+\item Productions define how nonterminals expand, written as \texttt{::=}
+\item The vertical bar \texttt{|} denotes available expansions
+\end{itemize}
+Thus, to define the language for natural numbers in decimal notation:
+\begin{align*}
+  \texttt{<digit>} &\;::=\; \texttt{"0"} \;|\; \texttt{"1"} \;|\; \texttt{"2"} \;|\; \texttt{"3"} \;|\; \texttt{"4"} \;|\; \texttt{"5"} \;|\; \texttt{"6"} \;|\; \texttt{"7"} \;|\; \texttt{"8"} \;|\; \texttt{"9"} \\
+  \texttt{<number>} &\;::=\; \texttt{<digit>} \;|\; \texttt{<digit>} \ \texttt{<number>}
+\end{align*}
+\begin{definition} Taking advantage of BNF notation, an alternative definition for $\La$ (\ref{def:lambda-terms-1}):
+  \begin{align*}
+    \texttt{<term>} &\;::=\; \texttt{<variable>} \\
+                    &\;|\; \texttt{"$\la$"}\ \texttt{<variable>}\ \texttt{"."}\ \texttt{<term>} \\
+                    &\;|\; \texttt{"("}\ \texttt{<term>}\ \texttt{<term>}\ \texttt{")"} \\
+    \texttt{<variable>} &\;::\in V
+  \end{align*}
+  \label{def:lambda-terms-2}
+  where \( \Sigma = \{ \la, ., (, )\} \cup \Vset \) and \( \La \subset \Sigma^* \).
+\end{definition}
+\begin{remark}
+  From the definition above we extract that \( \lambda x . x + 1 \notin \La \), and thus, we need to find an accurate representation for numbers within this definition. See Definition \ref{def:}
+\end{remark}
+\begin{example} Some examples of valid $\la$ terms generated using the grammar in \ref{def:lambda-terms-2}:
+  \( y \),
+  \( (\la x. (x x)) \),
+  \( (\la x. (\la y. x)) \),
+  \( (((\la x. (x y)) (\la y. y)) z) \).
+\end{example}
+As a convention to avoid notational cluttering, the outermost parenthesis can be omitted (e.g. $ ( \la x.x ) $ can be read as $ \la x.x $). Also, application is left-associative  and binds tighter than abstraction, so $M N P$ is parsed as $(M N) P$ and $\la x . M N$ means $\la x . (M N)$, not $(\la x . M) N$. Likewise, abstraction is right-associative (e.g. $\la x . \la y . M$ is $\la x . (\la y . M)$) and binds more weakly than application. All these are just to keep notation straight-forward, the formal definition does not leave precedence under-specified thanks to parenthesis.
 
-Another concept that might be worth-while glancing over, is what in the jargon is referred to as first-class citizenship, or more formally high-order. When we use high-order to refer to a \la-term, we refer to the fact that both functions and arguments are treated indistiguishably, the example below sheds some light on the matter:
+Having defined the language of the \lcalc, we move on to the mechanics of computation. We will encounter results concerning the equivalence of \lterms. Let us begin by introducing the set that contains all variables that are not bound to the term via an abstraction.
+\begin{definition} Given $T \in \La $, $\functionfont{FV} : \La \to \mathcal{P}(\Vset) $ outputs the set of free variables for $T$:
+  \begin{align*}
+    & \FV x = {x}\\
+    & \FV {MN} = \FV M \cup \FV N \\
+    & \FV {\lambda x . M} = \FV M \setminus \{x\}
+  \end{align*}
+  Where $ x \in \Vset $ and $ M, N \in \La $, and $\mathcal{P}$ denotes the power set.
+\end{definition}
+\begin{example}
+  Compute the free variables of $\lambda x . \lambda y . y x z$:
+  
+  The term is indeed well-formed and thus belongs to $\La$, allowing us to proceed:
+  \begin{align*}
+    \FV {\lambda x . \lambda y . y x z} &= \FV {\lambda y . yxz} \setminus \{x\} \\
+                                        &= \FV {yxz} \setminus \{x, y\} \\
+                                        &= \{x, y, z\} \setminus \{x, y\} \\
+                                        &= \{z\}
+  \end{align*}
+  Of course, $z$ is the only free variable in the expression as it is the only variable that is not captured by some $\la$-abstraction.
+\end{example}
+
+\begin{definition}
+  A term $M \in \Lambda$ is closed if and only if $\FV M = \emptyset$, closed lambda terms are often referred to as combinators. $\Lambda^0$ is the set of all closed lambda terms.
+\end{definition}
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+\newpage
+a
+\newpage
+A key aspect of the \lcalc, is what in the jargon is referred to as first-class citizenship, or more formally high-order. When we use high-order to refer to a $\la$-term, we refer to the fact that both functions and arguments are treated indistiguishably, the example below sheds some light on the matter:
 \begin{align*}
   \overbrace { (\lambda f . \lambda y . f f y) }^{A} \overbrace{ (\lambda x . x + 1) }^{B} \overbrace{(2)}^{C}
   &\curly (\lambda y .(\lambda x . x + 1) (\lambda x . x + 1)y)(2) \\
@@ -61,27 +148,13 @@ Another concept that might be worth-while glancing over, is what in the jargon i
   &\curly (\lambda x . x + 1) (3) \\
   &\curly (4)
 \end{align*}
+
 Taking a closer look, $A$, applies $f$ twice to $x$, as a consequence, $B$ is being applied twice to $C$. And so, very easily, we have implemented the $ x + 2 $ function via a sequential application of $x + 1$ to $C$. One can intuitively apreciate the computational expresivenes this brings with it, and how the sintactic-semantic homogeneity sets the \lcalc \ apart from the classical set-theoretic approach to functions.
 
 \subsection{\centering
   Lambda Terms}
 
-Having established a basic intuition behind the lambda calculus, let us begin to formalize the basic notions that e
 
-
-define $\mathbb{V} = \{x, y, z, ...\}$, as the set of all possible variable names, a set of little real importance, but a must-have in order to formalize some of the upcoming definitions.
-\begin{definition} \textbf{($\mathbf{\Lambda}$; The Set of all $\mathbf{\lambda}$-terms)}: The language for expressions in the lambda calculus can be defined using a grammar in BNF notation like this:
-  \label{def:lambda-terms}
-  \[
-    M = x \mid MM \mid \lambda x . M \quad x \in \mathbb{V}
-  \]
-\end{definition}
-\begin{example} Some examples of valid $\lambda$ terms that belong to $\Lambda$:
-  \( y \),
-  \( \lambda x. x x \),
-  \( \lambda x. \lambda y. x \),
-  \( (\lambda x. x x) (\lambda y. y) z \).
-\end{example}
 \begin{definition} \textbf{(Sub; Multiset of Subterms)}: Since every lambda term is made up of other smaller lambda terms, it is only natural to define the set of subterms:
 \begin{align*}
   &\Sub x = \{x\} \\
@@ -92,35 +165,219 @@ Where $x \in \mathbb{V}$ and $M, N \in \Lambda $.
 \end{definition}
 \begin{definition} \textbf{(Proper Subterm)}: A term $M \in \Sub M, \ M \in \Lambda$ is said to be proper if $S \neq M$. Thus, $\Sub{M} \setminus \{M\}$ would be the multiset of proper subterms.
 \end{definition}
-\begin{definition} \textbf{(Var; The set of Variables in a lambda term)}:
-\begin{align*}
-    & \FV x = {x}\\
-    & \FV {MN} = \FV M \cup \FV {N} \\
-    & \FV {\lambda x . M} = \FV M \setminus \{x\}
-\end{align*}
-\end{definition}
-\begin{definition} \textbf{(FV; The set of Free Variables in a lambda term)}: Variables that are not captured by means of an abstraction are said to be free, non-free variables are said to be bound.
-\begin{align*}
-    & \FV x = {x}\\
-    & \FV {MN} = \FV M \cup \FV {N} \\
-    & \FV {\lambda x . M} = \FV M \setminus \{x\}
-\end{align*}
-\end{definition}
-\example{ Compute the free variables of $\lambda x . \lambda y . y x z$:
-    \begin{align*}
-        \FV {\lambda x . \lambda y . y x z} &= \FV {\lambda y . yxz)} \setminus \{x\} \\
-        &= \FV {yxz} \setminus \{x, y\} \\
-        &= \{x, y, z\} \setminus \{x, y\} \\
-        &= \{z\}
-    \end{align*}
-    Of course, $z$ is the only free variable in the expression as it is the only variable that is not captured by some lambda abstraction.
-}
 
-\begin{definition}
-  A term $M \in \Lambda$ is closed if and only if $\FV M = \emptyset$, closed lambda terms are often referred to as combinators. $\Lambda^0$ is the set of all closed lambda terms.
-\end{definition}
+
+
+
+
+
+
+
+
+
+\newpage
+
+Sean \( \mathsf{Var} \) un conjunto contable de variables \( x, y, z, \ldots \). La sintaxis del cálculo lambda no tipado se define como sigue:
+
+\[
+M ::= x \mid (M\ N) \mid \lambda x. M
+\]
+
+El conjunto de variables libres \( \mathrm{FV}(M) \subseteq \mathsf{Var} \) se define por:
+
+\begin{align*}
+\mathrm{FV}(x) &= \{x\} \\
+\mathrm{FV}(M\ N) &= \mathrm{FV}(M) \cup \mathrm{FV}(N) \\
+\mathrm{FV}(\lambda x. M) &= \mathrm{FV}(M) \setminus \{x\}
+\end{align*}
+
+La conversión alfa (\( \alpha \)-conversión) permite renombrar variables ligadas. Si \( y \notin \mathrm{FV}(M) \), entonces:
+
+\[
+\lambda x. M \equiv_\alpha \lambda y. M[x := y]
+\]
+
+La relación de equivalencia alfa \( \equiv_\alpha \) es la menor relación de equivalencia cerrada por:
+
+\begin{itemize}[label=--]
+  \item \( x \equiv_\alpha x \)
+  \item \( M\ N \equiv_\alpha M'\ N' \) si \( M \equiv_\alpha M' \) y \( N \equiv_\alpha N' \)
+  \item \( \lambda x. M \equiv_\alpha \lambda y. M[x := y] \) si \( y \notin \mathrm{FV}(M) \)
+\end{itemize}
+
+La sustitución \( M[x := N] \) se define por inducción estructural en \( M \), asegurando evitación de captura:
+
+\begin{align*}
+x[x := N] &= N \\
+y[x := N] &= y \quad \text{si } y \neq x \\
+(M_1\ M_2)[x := N] &= M_1[x := N]\ M_2[x := N] \\
+(\lambda y. M')[x := N] &=
+\begin{cases}
+\lambda y. M' & \text{si } y = x \\
+\lambda y. M'[x := N] & \text{si } y \neq x \text{ y } y \notin \mathrm{FV}(N) \\
+\lambda z. (M'[y := z])[x := N] & \text{si } y \neq x,\ y \in \mathrm{FV}(N),\ z \notin \mathrm{FV}(M') \cup \mathrm{FV}(N)
+\end{cases}
+\end{align*}
+
+La reducción beta se define por la regla:
+
+\[
+(\lambda x. M)\ N \rightarrow_\beta M[x := N]
+\]
+
+Y se extiende por clausura contextual:
+
+\begin{align*}
+M \rightarrow_\beta M' &\Rightarrow M\ N \rightarrow_\beta M'\ N \\
+N \rightarrow_\beta N' &\Rightarrow M\ N \rightarrow_\beta M\ N' \\
+M \rightarrow_\beta M' &\Rightarrow \lambda x. M \rightarrow_\beta \lambda x. M'
+\end{align*}
+
+La clausura reflexiva y transitiva de \( \rightarrow_\beta \) se denota \( \rightarrow_\beta^* \).
+
+Como ejemplo, sea el término \( (\lambda x. \lambda y. x)\ y \). Aplicamos reducción beta:
+
+\[
+(\lambda x. \lambda y. x)\ y \rightarrow_\beta (\lambda y. x)[x := y]
+\]
+
+Existe riesgo de captura, ya que \( y \) es variable ligada. Realizamos conversión alfa:
+
+\[
+\lambda y. x \equiv_\alpha \lambda z. x
+\]
+
+Ahora la sustitución es segura:
+
+\[
+(\lambda z. x)[x := y] = \lambda z. y
+\]
+
+El resultado correcto es:
+
+\[
+(\lambda x. \lambda y. x)\ y \rightarrow_\beta \lambda z. y
+\]
+
+Finalmente, resumimos las definiciones en la siguiente tabla:
+
+\begin{center}
+\begin{tabular}{|c|l|}
+\hline
+\textbf{Concepto} & \textbf{Definición Formal} \\
+\hline
+Renombramiento & \( \lambda x. M \to \lambda y. M[x := y] \), con \( y \notin \mathrm{FV}(M) \) \\
+\hline
+α-conversión & \( \lambda x. M \equiv_\alpha \lambda y. M[x := y] \) \\
+\hline
+Sustitución & \( M[x := N] \): recursiva, libre de captura \\
+\hline
+β-reducción & \( (\lambda x. M)\ N \rightarrow_\beta M[x := N] \) \\
+\hline
+\end{tabular}
+\end{center}
+
+
+
+
+
+
+
+
+
+
+
+\newpage
+\subsection{\centering Some Important Constructs}
+
+\textbf{Church numerals:}
+\begin{align*}
+0 &\equiv \lambda f.\lambda x. x \\
+1 &\equiv \lambda f.\lambda x. f\,x \\
+2 &\equiv \lambda f.\lambda x. f\,(f\,x) \\
+n &\equiv \lambda f.\lambda x. f^n\,x
+\end{align*}
+
+\textbf{Booleans:}
+\begin{align*}
+\texttt{TRUE} &\equiv \lambda t.\lambda f. t \\
+\texttt{FALSE} &\equiv \lambda t.\lambda f. f
+\end{align*}
+
+\textbf{Conditional:}
+\begin{align*}
+\texttt{IF} &\equiv \lambda b.\lambda t.\lambda e. b\,t\,e
+\end{align*}
+
+\textbf{Pairs:}
+\begin{align*}
+\texttt{PAIR} &\equiv \lambda x.\lambda y.\lambda f. f\,x\,y \\
+\texttt{FIRST} &\equiv \lambda p. p\,(\lambda x.\lambda y. x) \\
+\texttt{SECOND} &\equiv \lambda p. p\,(\lambda x.\lambda y. y)
+\end{align*}
+
+\textbf{Lists:}
+\begin{align*}
+\texttt{NIL} &\equiv \lambda f.\lambda z. z \\
+\texttt{CONS} &\equiv \lambda h.\lambda t.\lambda f.\lambda z. f\,h\,(t\,f\,z) \\
+\texttt{IS\_NIL} &\equiv \lambda l. l\,(\lambda h.\lambda t. \texttt{FALSE})\,\texttt{TRUE} \\
+\texttt{HEAD} &\equiv \lambda l. l\,(\lambda h.\lambda t. h)\,\text{undef} \\
+\texttt{TAIL} &\equiv \lambda l.\, \texttt{FIRST}\,(l\,(\lambda p.\lambda h.\, \texttt{PAIR}\,(\texttt{SECOND}\,p)\,(\texttt{CONS}\,h\,(\texttt{SECOND}\,p)))\,(\texttt{PAIR}\,\texttt{NIL}\,\texttt{NIL}))
+\end{align*}
+
+\textbf{Arithmetic:}
+\begin{align*}
+\texttt{SUCC} &\equiv \lambda n.\lambda f.\lambda x. f\,(n\,f\,x) \\
+\texttt{ADD} &\equiv \lambda m.\lambda n.\lambda f.\lambda x. m\,f\,(n\,f\,x) \\
+\texttt{MUL} &\equiv \lambda m.\lambda n.\lambda f. m\,(n\,f) \\
+\texttt{ISZERO} &\equiv \lambda n. n\,(\lambda x.\texttt{FALSE})\,\texttt{TRUE} \\
+\texttt{PRED} &\equiv \lambda n.\lambda f.\lambda x. n\,(\lambda g.\lambda h. h\,(g\,f))\,(\lambda u. x)\,(\lambda u. u) \\
+\texttt{SUB} &\equiv \lambda m.\lambda n. n\,\texttt{PRED}\,m
+\end{align*}
+
+\textbf{Recursion:}
+\begin{align*}
+\texttt{Y} &\equiv \lambda f.(\lambda x. f\,(x\,x))\,(\lambda x. f\,(x\,x))
+\end{align*}
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 \subsection{\centering Fixed Point Combinators and Recursion}
+
+Y combinator.
+\[
+Y \triangleq \lambda f.\, (\lambda x.\, f\, (x\, x))\, (\lambda x.\, f\, (x\, x))
+\]
+
+Turing combinator
+\[
+\Theta \triangleq 
+(\lambda x\, f.\, f\, (x\, x\, f))\, (\lambda x\, f.\, f\, (x\, x\, f))
+\]
+
+Z combinator
+\[
+Z \triangleq \lambda f.\, 
+  (\lambda x.\, f\, (\lambda v.\, x\, x\, v))\, 
+  (\lambda x.\, f\, (\lambda v.\, x\, x\, v))
+\]
+
 
 
 \section{\centering Simply Typed \lCalc}
