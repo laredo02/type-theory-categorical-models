@@ -92,8 +92,8 @@ Thus, to define the language for natural numbers in decimal notation:
   \( (((\la x. (x y)) (\la y. y)) z) \).
 \end{example}
 As a convention to avoid notational cluttering, the outermost parenthesis can be omitted (e.g. $ ( \la x.x ) $ can be read as $ \la x.x $). Also, application is left-associative  and binds tighter than abstraction, so $M N P$ is parsed as $(M N) P$ and $\la x . M N$ means $\la x . (M N)$, not $(\la x . M) N$. Likewise, abstraction is right-associative (e.g. $\la x . \la y . M$ is $\la x . (\la y . M)$) and binds more weakly than application. All these are just to keep notation straight-forward, the formal definition does not leave precedence under-specified thanks to parenthesis.
-
-Having defined the language of the \lcalc, we move on to the mechanics of computation. We will encounter results concerning the equivalence of \lterms. Let us begin by introducing the set that contains all variables that are not bound to the term via an abstraction.
+\subsection{\centering Equivalence of terms}
+Having defined the language of the \lcalc, we move on to the mechanics of computation. To this end, several equivalence relations among terms will be defined. Let us begin by introducing the set that contains all variables that are not bound to the term via an abstraction.
 \begin{definition} Given $T \in \La $, $\functionfont{FV} : \La \to \mathcal{P}(\Vset) $ outputs the set of free variables for $T$:
   \begin{align*}
     & \FV x = {x}\\
@@ -114,14 +114,48 @@ Having defined the language of the \lcalc, we move on to the mechanics of comput
   \end{align*}
   Of course, $z$ is the only free variable in the expression as it is the only variable that is not captured by some $\la$-abstraction.
 \end{example}
-
 \begin{definition}
   A term $M \in \Lambda$ is closed if and only if $\FV M = \emptyset$, closed lambda terms are often referred to as combinators. $\Lambda^0$ is the set of all closed lambda terms.
 \end{definition}
+Since every lambda term is made up of other smaller lambda terms, it is only natural to define the set that contains all subterms of a given term:
+\begin{definition} Given $T \in \La$, $\functionfont{Sub} : \La \to \mathcal{P}(\Vset)$ maps terms to the set of it's subterms.
+\begin{align*}
+  &\Sub x = \{x\} \\
+  &\Sub {MN} = \Sub M  \cup \Sub N \cup \{MN\} \\
+  &\Sub {\lambda x . M} = \Sub M  \cup \{\lambda x. M\}
+\end{align*}
+Where $x \in \mathbb{V}$ and $M, N \in \Lambda $.
+\end{definition}
+\begin{remark}
+  Let \( \preceq \) be the subterm relation on \lterms, defined by
+  \[
+    M \preceq N \iff M \in \Sub{ N }
+  \]
+  \( \preceq \) is a partial order relation. This statement is follows intuitively from the definition, it can be proven using induction on the derivation tree.
+\end{remark}
+\begin{definition} A term $M \in \Sub M, \ M \in \Lambda$ is said to be proper if $S \neq M$. Thus, $\Sub{M} \setminus \{M\}$ would be the set of proper subterms.
+\end{definition}
+\begin{definition} Let \( M = \lambda x. N \) be a \lterm:
+\begin{itemize}
+\item The variable \( x \) is the binding variable of the abstraction \( \lambda x. N \).
+  \item An occurrence of a variable \( x \) in \( M \) is bound if \( x \in \Sub { \lambda x. N } \).
+  \end{itemize}
+\end{definition}
 
-
-
-
+\begin{definition}Capture-Avoiding Substitution Rules
+  Let \( M, N \in \La \) and \( x, y, z \in \Vset \). The substitution \( M[x := N] \) is defined inductively as:
+  \[
+    \begin{aligned}
+      x[x := N]                       & = N \\
+      y[x := N]                       & = y && y \neq x \\
+      (M_1\, M_2)[x := N]             & = (M_1[x := N])\,(M_2[x := N]) \\
+      (\lambda x. M)[x := N]          & = \lambda x. M \\
+      (\lambda y. M)[x := N]          & = \lambda y. (M[x := N]) && y \neq x, y \notin \FV { N } \\
+      (\lambda y. M)[x := N]          & = \lambda z. (M[y := z][x := N]) && y \neq x, y \in \FV { N }
+    \end{aligned}
+  \]
+  where \( z \notin \FV { M } \cup \FV { N } \).
+\end{definition}
 
 
 
@@ -140,7 +174,7 @@ Having defined the language of the \lcalc, we move on to the mechanics of comput
 \newpage
 a
 \newpage
-A key aspect of the \lcalc, is what in the jargon is referred to as first-class citizenship, or more formally high-order. When we use high-order to refer to a $\la$-term, we refer to the fact that both functions and arguments are treated indistiguishably, the example below sheds some light on the matter:
+Having covered \bred, we now explore a key aspect of the \lcalc, in the jargon referred to as first-class citizenship, or more formally high-order. When we use high-order to refer to a $\la$-term, we refer to the fact that both functions and arguments are treated indistiguishably, the example below sheds some light on the matter:
 \begin{align*}
   \overbrace { (\lambda f . \lambda y . f f y) }^{A} \overbrace{ (\lambda x . x + 1) }^{B} \overbrace{(2)}^{C}
   &\curly (\lambda y .(\lambda x . x + 1) (\lambda x . x + 1)y)(2) \\
@@ -153,139 +187,6 @@ Taking a closer look, $A$, applies $f$ twice to $x$, as a consequence, $B$ is be
 
 \subsection{\centering
   Lambda Terms}
-
-
-\begin{definition} \textbf{(Sub; Multiset of Subterms)}: Since every lambda term is made up of other smaller lambda terms, it is only natural to define the set of subterms:
-\begin{align*}
-  &\Sub x = \{x\} \\
-  &\Sub {MN} = \Sub M  \cup \Sub N \cup \{MN\} \\
-  &\Sub {\lambda x . M} = \Sub M  \cup \{\lambda x. M\}
-\end{align*}
-Where $x \in \mathbb{V}$ and $M, N \in \Lambda $.
-\end{definition}
-\begin{definition} \textbf{(Proper Subterm)}: A term $M \in \Sub M, \ M \in \Lambda$ is said to be proper if $S \neq M$. Thus, $\Sub{M} \setminus \{M\}$ would be the multiset of proper subterms.
-\end{definition}
-
-
-
-
-
-
-
-
-
-
-\newpage
-
-Sean \( \mathsf{Var} \) un conjunto contable de variables \( x, y, z, \ldots \). La sintaxis del cálculo lambda no tipado se define como sigue:
-
-\[
-M ::= x \mid (M\ N) \mid \lambda x. M
-\]
-
-El conjunto de variables libres \( \mathrm{FV}(M) \subseteq \mathsf{Var} \) se define por:
-
-\begin{align*}
-\mathrm{FV}(x) &= \{x\} \\
-\mathrm{FV}(M\ N) &= \mathrm{FV}(M) \cup \mathrm{FV}(N) \\
-\mathrm{FV}(\lambda x. M) &= \mathrm{FV}(M) \setminus \{x\}
-\end{align*}
-
-La conversión alfa (\( \alpha \)-conversión) permite renombrar variables ligadas. Si \( y \notin \mathrm{FV}(M) \), entonces:
-
-\[
-\lambda x. M \equiv_\alpha \lambda y. M[x := y]
-\]
-
-La relación de equivalencia alfa \( \equiv_\alpha \) es la menor relación de equivalencia cerrada por:
-
-\begin{itemize}[label=--]
-  \item \( x \equiv_\alpha x \)
-  \item \( M\ N \equiv_\alpha M'\ N' \) si \( M \equiv_\alpha M' \) y \( N \equiv_\alpha N' \)
-  \item \( \lambda x. M \equiv_\alpha \lambda y. M[x := y] \) si \( y \notin \mathrm{FV}(M) \)
-\end{itemize}
-
-La sustitución \( M[x := N] \) se define por inducción estructural en \( M \), asegurando evitación de captura:
-
-\begin{align*}
-x[x := N] &= N \\
-y[x := N] &= y \quad \text{si } y \neq x \\
-(M_1\ M_2)[x := N] &= M_1[x := N]\ M_2[x := N] \\
-(\lambda y. M')[x := N] &=
-\begin{cases}
-\lambda y. M' & \text{si } y = x \\
-\lambda y. M'[x := N] & \text{si } y \neq x \text{ y } y \notin \mathrm{FV}(N) \\
-\lambda z. (M'[y := z])[x := N] & \text{si } y \neq x,\ y \in \mathrm{FV}(N),\ z \notin \mathrm{FV}(M') \cup \mathrm{FV}(N)
-\end{cases}
-\end{align*}
-
-La reducción beta se define por la regla:
-
-\[
-(\lambda x. M)\ N \rightarrow_\beta M[x := N]
-\]
-
-Y se extiende por clausura contextual:
-
-\begin{align*}
-M \rightarrow_\beta M' &\Rightarrow M\ N \rightarrow_\beta M'\ N \\
-N \rightarrow_\beta N' &\Rightarrow M\ N \rightarrow_\beta M\ N' \\
-M \rightarrow_\beta M' &\Rightarrow \lambda x. M \rightarrow_\beta \lambda x. M'
-\end{align*}
-
-La clausura reflexiva y transitiva de \( \rightarrow_\beta \) se denota \( \rightarrow_\beta^* \).
-
-Como ejemplo, sea el término \( (\lambda x. \lambda y. x)\ y \). Aplicamos reducción beta:
-
-\[
-(\lambda x. \lambda y. x)\ y \rightarrow_\beta (\lambda y. x)[x := y]
-\]
-
-Existe riesgo de captura, ya que \( y \) es variable ligada. Realizamos conversión alfa:
-
-\[
-\lambda y. x \equiv_\alpha \lambda z. x
-\]
-
-Ahora la sustitución es segura:
-
-\[
-(\lambda z. x)[x := y] = \lambda z. y
-\]
-
-El resultado correcto es:
-
-\[
-(\lambda x. \lambda y. x)\ y \rightarrow_\beta \lambda z. y
-\]
-
-Finalmente, resumimos las definiciones en la siguiente tabla:
-
-\begin{center}
-\begin{tabular}{|c|l|}
-\hline
-\textbf{Concepto} & \textbf{Definición Formal} \\
-\hline
-Renombramiento & \( \lambda x. M \to \lambda y. M[x := y] \), con \( y \notin \mathrm{FV}(M) \) \\
-\hline
-α-conversión & \( \lambda x. M \equiv_\alpha \lambda y. M[x := y] \) \\
-\hline
-Sustitución & \( M[x := N] \): recursiva, libre de captura \\
-\hline
-β-reducción & \( (\lambda x. M)\ N \rightarrow_\beta M[x := N] \) \\
-\hline
-\end{tabular}
-\end{center}
-
-
-
-
-
-
-
-
-
-
 
 \newpage
 \subsection{\centering Some Important Constructs}
