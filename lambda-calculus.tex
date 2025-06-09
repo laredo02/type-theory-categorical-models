@@ -17,6 +17,9 @@
 \newcommand{\SND}{\texttt{SND}}
 \newcommand{\PAIR}{\texttt{PAIR}}
 \newcommand{\NIL}{\texttt{NIL}}
+\newcommand{\NOT}{\texttt{NOT}}
+\newcommand{\AND}{\texttt{AND}}
+\newcommand{\OR}{\texttt{OR}}
 
 \newcommand{\lCalc}{$\la$-Calculus}
 \newcommand{\lcalc}{$\la$-calculus}
@@ -274,9 +277,14 @@ The reality of the \IF \ is that it is just a combinator that happens to behave 
   So the \IF \ just combines $b, t, e$ in such a way that whenever b is a church encoded boolean either $t$ or $e$ is dropped depending on the truth value of $b$. See Remark \ref{rem:true-false}.
 \end{example}
 
-\magenta{How can we build every logic gate thus every logical function using if true and false. add reference to normalisation of logical propositions}
+Using the \IF \ we can implement an universal set of logic gates:
+\begin{align*}
+  \NOT &\equiv \IF \, b \, \FALSE \, \TRUE \\
+  \AND &\equiv \IF \, a \, (\IF \, b \, \TRUE \, \FALSE) \, \FALSE
+\end{align*}
+This allows us to simulate a nand gate, known to be universal \ref{}. Thus, the lambda calculus is at least equivalent to propositional logic.
 
-On the same track, another must have for programmers are lists. Sice they are a bit more involved, we require tuples to define them. Note that the \IF \ is a tuple that contains two elements, we query the first element using a \TRUE \ (i.e. the \textit{``then''} branch), and the sencond using a \FALSE \ (i.e. the \textit{´´else''} branch). We will be using this alternative definition for convenience:
+On the same track, another must-have for programmers is lists. Sice they are a bit more involved, we require tuples to define them. Note that the \IF \ is a tuple that contains two elements, we query the first element using a \TRUE \ (i.e. the \textit{``then''} branch), and the sencond using a \FALSE \ (i.e. the \textit{´´else''} branch). We will be using this alternative definition for convenience:
 \begin{definition} \( \texttt{PAIR} \equiv \la x.\la y.\la f. f\,x\,y \)
 \end{definition}
 From this definition follows that \FST \ and \SND \ can be used to retrieve the first and second elements of the tuple:
@@ -322,18 +330,14 @@ Using pairs, we now can define linear lists, we can achieve this using either le
     \end{aligned}
   \]
 \end{center}
+\begin{definition} We define \NIL \ in the same way we defined \texttt{0} and \FALSE \ before: $ \NIL \equiv \la f.\la z. z $.
 
-\begin{definition}
-\begin{align*}
-\texttt{NIL} &\equiv \lambda f.\lambda z. z \\
-\texttt{CONS} &\equiv \lambda h.\lambda t.\lambda f.\lambda z. f\,h\,(t\,f\,z) \\
-\end{align*}
 \end{definition}
-
 \begin{align*}
-\texttt{IS\_NIL} &\equiv \lambda l. l\,(\lambda h.\lambda t. \texttt{FALSE})\,\texttt{TRUE} \\
-\texttt{HEAD} &\equiv \lambda l. l\,(\lambda h.\lambda t. h)\,\text{undef} \\
-\texttt{TAIL} &\equiv \lambda l.\, \texttt{FIRST}\,(l\,(\lambda p.\lambda h.\, \texttt{PAIR}\,(\texttt{SECOND}\,p)\,(\texttt{CONS}\,h\,(\texttt{SECOND}\,p)))\,(\texttt{PAIR}\,\texttt{NIL}\,\texttt{NIL}))
+\texttt{CONS} &\equiv \la h.\la t.\la f.\la z. f\,h\,(t\,f\,z) \\
+\texttt{IS\_NIL} &\equiv \la l. l\,(\la h.\la t. \texttt{FALSE})\,\texttt{TRUE} \\
+\texttt{HEAD} &\equiv \la l. l\,(\la h.\la t. h)\,\text{undef} \\
+\texttt{TAIL} &\equiv \la l.\, \texttt{FIRST}\,(l\,(\la p.\la h.\, \texttt{PAIR}\,(\texttt{SECOND}\,p)\,(\texttt{CONS}\,h\,(\texttt{SECOND}\,p)))\,(\texttt{PAIR}\,\texttt{NIL}\,\texttt{NIL}))
 \end{align}
 
 
@@ -353,6 +357,42 @@ Using pairs, we now can define linear lists, we can achieve this using either le
 
 \newpage
 \centering{\blue{left blank}}
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 \newpage
 
