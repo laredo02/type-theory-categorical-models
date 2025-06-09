@@ -51,6 +51,8 @@
 
 \chapter{\lCalc}
 
+\magenta{Add some introduction. Computation and meaning, operational vs denotational. historical note}
+
 \section{\centering Untyped \lCalc}
 In order to get acquainted with the \lcalc, let us develop a simple example to familiarize ourselves before we begin with a more formal approach to this discipline. Consider the function $f(x) = x + 1$, the most straightforward way to express this using \lcalc \ would be $(\la x . x + 1 )$, where the lambda denotes that $x$ is being captured and used as a parameter to perform some computation \footnote{this is an e.g., $(\la x . x + 1 )$ is not a valid lambda term, see Definition \ref{def:lambda-terms-2}.}. Evaluating $f(2)$ using this newly created lambda term would look like this: $(\la x . x + 1)(2) \curly (2 + 1) \curly 3$. This process of reducing a $\la$-expression is referred to as \bred, it will be covered formally later in the chapter.
 \begin{definition} The set of lambda terms \( \La \) is defined inductively as follows:
@@ -94,7 +96,7 @@ Thus, to define the language for natural numbers in decimal notation:
   where \( \Sigma = \{ \la, ., (, )\} \cup \Vset \) and \( \La \subset \Sigma^* \).
 \end{definition}
 \begin{remark}
-  From the definition above we extract that \( \lambda x . x + 1 \notin \La \), given this circumstance, the need to find an accurate representation for numbers within this definition arises. See Definition \ref{def:}
+  From the definition above we extract that \( \lambda x . x + 1 \notin \La \), given this circumstance, the need to find an accurate representation for numbers within this definition arises. See Definition \ref{def:church-naturals}
 \end{remark}
 \begin{example} Some examples of valid $\la$ terms generated using the grammar in \ref{def:lambda-terms-2}:
   \( y \),
@@ -168,22 +170,8 @@ Where $x \in \mathbb{V}$ and $M, N \in \Lambda $.
   where \( z \notin \FV { M } \cup \FV { N } \).
 \end{definition}
 
+\magenta{Beta reduction}
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-\newpage
-a
 \newpage
 Having covered \bred, we now explore a key aspect of the \lcalc, in the jargon referred to as first-class citizenship, or more formally high-order. When we use high-order to refer to a $\la$-term, we refer to the fact that both functions and arguments are treated indistiguishably, the example below sheds some light on the matter:
 \begin{align*}
@@ -196,18 +184,8 @@ Having covered \bred, we now explore a key aspect of the \lcalc, in the jargon r
 
 Taking a closer look, $A$, applies $f$ twice to $x$, as a consequence, $B$ is being applied twice to $C$. And so, very easily, we have implemented the $ x + 2 $ function via a sequential application of $x + 1$ to $C$. One can intuitively apreciate the computational expresivenes this brings with it, and how the sintactic-semantic homogeneity sets the \lcalc \ apart from the classical set-theoretic approach to functions.
 
-\subsection{\centering
-  Lambda Terms}
+\magenta{normalization + church rosser i.e. confluence}
 
-
-
-
-
-
-
-
-
-\newpage
 \subsection{\centering Some Important Constructs}
 
 Within the \lcalc \ there exist a number of conventional constructions that represent key ideas in programming (numbers, booleans, branches and lists among others) In the following we define a few of the most important ones.
@@ -220,7 +198,7 @@ We begin defining $ \mathbb{N} $ for no particular reason \orange{other than the
 \item (Injectivity) \( \forall x, y \in \NAT, s(x) = s(y) \Rightarrow x = y \)
 \item (Induction) \( P(0) \land \forall ( P(x) \Rightarrow P(s(x))) \Rightarrow \forall x,  P (x) \)
 \end{itemize}
-\textcolor{orange}{Maybe include here a graph to make the intuition behind the axioms explicit}
+\magenta{Maybe include here a graph to make the intuition behind the axioms explicit}
 
 Say for instance we mean to represent $ 3 $ using Peano notation, we would come up with $ s(s(s(0))) $. To add two numbers one can just use the set of rules:
 \[
@@ -231,6 +209,7 @@ Say for instance we mean to represent $ 3 $ using Peano notation, we would come 
 \]
 A recursive rule that performs the addition, and a base case to stop the recursion for n + 0, since there is no such number that has $ 0 $ as succesor.
 \begin{definition} Representation of the set of all naturals, usually referred to as Church numerals:
+\label{def:church-naturals}
 \begin{align*}
 \texttt{0} &\equiv \la f.\la x. x \\
 \texttt{SUCC} &\equiv \la n. \la f. \la x . f ( n f x )
@@ -292,7 +271,7 @@ The reality of the \IF \ is that it is just a combinator that happens to behave 
   So the \IF \ just combines $b, t, e$ in such a way that whenever b is a church encoded boolean either $t$ or $e$ is dropped depending on the truth value of $b$. See Remark \ref{rem:true-false}.
 \end{example}
 
-\orange{A different combinator that behaves like IF, maybe lbltle.bel with symetic semantics}
+\magenta{A different combinator that behaves like IF, maybe lbltle.bel with symetic semantics}
 
 On the same track, another must have for programmers are lists. Sice they are a bit more involved, we require tuples to define them. Note that the \IF \ is a tuple that contains two elements, we query the first element using a \TRUE \ (i.e. the \textit{``then''} branch), and the sencond using a \FALSE \ (i.e. the \textit{´´else''} branch). We will be using this alternative definition for convenience:
 
@@ -362,13 +341,19 @@ Z \triangleq \lambda f.\,
   (\lambda x.\, f\, (\lambda v.\, x\, x\, v))
 \]
 
+\magenta{Turing completeness of the \lcalc} 
 
 
 \section{\centering Simply Typed \lCalc}
 
+
+\magenta{rewrite this pls $==>$}
+
 The Untyped Lambda Calculus in computationally equivalent to a  Turing machine. However, with great computational power comes limited decidability of properties, leading to non-termination, or expressions such as $x(\lambda y . y)$, whose meaning is unclear.
 
 A classic example of non-termination is the $Y$ combinator, however, the Simply Typed Lambda Calculus does not allow such expressions, as its type system is unable to assign a valid type to them.
+
+\magenta{if there is a proof of turing completeness, add how if we remove combinators then we remove turing completeness i.e. finite tape $\neq$ turing complete}
 
 To understand why, consider the role of function types: in the world of functions, a function maps values from a domain to a range. The Simply Typed Lambda Calculus enforces this structure explicitly, ensuring that every function application is well-typed and preventing self-application patterns that would lead to paradoxes or infinite loops.
 
@@ -379,7 +364,7 @@ Having grasped the untyped lambda calculus's Turing completeness and ability to 
 
 
 \section*{\centering A Primer on Logic}
-
+\magenta{build up to first order logic}
 
 
 
