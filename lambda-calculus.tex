@@ -2,12 +2,17 @@
 
 \usepackage[a4paper, margin=4cm]{geometry}
 \usepackage[english]{babel}
-\usepackage{amsmath, amssymb, amsthm, syntax}
+\usepackage{amsmath, amssymb, amsthm, syntax, tikz, xcolor}
 
 % Math notation for math blocks
 \newcommand{\la}{\lambda}
 \newcommand{\La}{\Lambda}
 \newcommand{\Vset}{V}
+\newcommand{\NAT}{\mathbb{N}}
+\newcommand{\IF}{\texttt{IF}}
+\newcommand{\SUCC}{\texttt{SUCC}}
+\newcommand{\TRUE}{\texttt{TRUE}}
+\newcommand{\FALSE}{\texttt{FALSE}}
 
 \newcommand{\lCalc}{$\la$-Calculus}
 \newcommand{\lcalc}{$\la$-calculus}
@@ -16,8 +21,13 @@
 \newcommand{\lterms}{$\la$-terms}
 \newcommand{\lexpr}{$\la$-expression}
 
+\newcommand{\orange}[1]{\textcolor{orange}{#1}}
+\newcommand{\magenta}[1]{\textcolor{magenta}{#1}}
+\newcommand{\blue}[1]{\textcolor{blue}{#1}}
+\newcommand{\green}[1]{\textcolor{green}{#1}}
+
 \newcommand{\functionfont}[1]{\mathbf{#1}}
-\newcommand{\curly}{\mathrel{\leadsto}}
+\newcommand{\curly}{\mathrel{\leadsto}_\beta}
 \newcommand{\Sub}[1]{\functionfont{Sub}(#1)}
 \newcommand{\Subb}{\functionfont{Sub}}
 \newcommand{\FV}[1]{\functionfont{FV}(#1)}
@@ -31,7 +41,8 @@
 \theoremstyle{definition}
 \newtheorem{example}{Example}[section]
 \theoremstyle{definition}
-\newtheorem*{remark}{Remark}
+\newtheorem{remark}{Remark}
+%\newtheorem*{remark}{Remark}
 
 \title{Type Theory and Categorical Models: A Unified Approach}
 \author{Miguel Laredo}
@@ -69,21 +80,21 @@ Our aim now, to generate the set $\La$,  to do this, we will make use of a gramm
 \end{itemize}
 Thus, to define the language for natural numbers in decimal notation:
 \begin{align*}
-  \texttt{<digit>} &\;::=\; \texttt{"0"} \;|\; \texttt{"1"} \;|\; \texttt{"2"} \;|\; \texttt{"3"} \;|\; \texttt{"4"} \;|\; \texttt{"5"} \;|\; \texttt{"6"} \;|\; \texttt{"7"} \;|\; \texttt{"8"} \;|\; \texttt{"9"} \\
-  \texttt{<number>} &\;::=\; \texttt{<digit>} \;|\; \texttt{<digit>} \ \texttt{<number>}
+  \texttt{<digit>} &\;\texttt{::=}\; \texttt{"0"} \;|\; \texttt{"1"} \;|\; \texttt{"2"} \;|\; \texttt{"3"} \;|\; \texttt{"4"} \;|\; \texttt{"5"} \;|\; \texttt{"6"} \;|\; \texttt{"7"} \;|\; \texttt{"8"} \;|\; \texttt{"9"} \\
+  \texttt{<number>} &\;\texttt{::=}\; \texttt{<digit>} \;|\; \texttt{<digit>} \ \texttt{<number>}
 \end{align*}
 \begin{definition} Taking advantage of BNF notation, an alternative definition for $\La$ (\ref{def:lambda-terms-1}):
   \begin{align*}
-    \texttt{<term>} &\;::=\; \texttt{<variable>} \\
+    \texttt{<term>} &\;\texttt{::=}\; \texttt{<variable>} \\
                     &\;|\; \texttt{"$\la$"}\ \texttt{<variable>}\ \texttt{"."}\ \texttt{<term>} \\
                     &\;|\; \texttt{"("}\ \texttt{<term>}\ \texttt{<term>}\ \texttt{")"} \\
-    \texttt{<variable>} &\;::\in V
+    \texttt{<variable>} &\;\texttt{::}\in V
   \end{align*}
   \label{def:lambda-terms-2}
   where \( \Sigma = \{ \la, ., (, )\} \cup \Vset \) and \( \La \subset \Sigma^* \).
 \end{definition}
 \begin{remark}
-  From the definition above we extract that \( \lambda x . x + 1 \notin \La \), and thus, we need to find an accurate representation for numbers within this definition. See Definition \ref{def:}
+  From the definition above we extract that \( \lambda x . x + 1 \notin \La \), given this circumstance, the need to find an accurate representation for numbers within this definition arises. See Definition \ref{def:}
 \end{remark}
 \begin{example} Some examples of valid $\la$ terms generated using the grammar in \ref{def:lambda-terms-2}:
   \( y \),
@@ -188,34 +199,115 @@ Taking a closer look, $A$, applies $f$ twice to $x$, as a consequence, $B$ is be
 \subsection{\centering
   Lambda Terms}
 
+
+
+
+
+
+
+
+
 \newpage
 \subsection{\centering Some Important Constructs}
 
-\textbf{Church numerals:}
+Within the \lcalc \ there exist a number of conventional constructions that represent key ideas in programming (numbers, booleans, branches and lists among others) In the following we define a few of the most important ones.
+
+We begin defining $ \mathbb{N} $ for no particular reason \orange{other than the natural numbers are the foundation of most of mathematics}. The notion of natural numbers in the \lcalc \ follows from the Peano axioms:
+\begin{itemize}
+\item (Zero) \( 0 \in \NAT \)
+\item (Successor) \( \forall x \in \NAT, s(x) \in \NAT \)
+\item (Initial) \( \forall x \in \NAT, s(x) \neq 0 \)
+\item (Injectivity) \( \forall x, y \in \NAT, s(x) = s(y) \Rightarrow x = y \)
+\item (Induction) \( P(0) \land \forall ( P(x) \Rightarrow P(s(x))) \Rightarrow \forall x,  P (x) \)
+\end{itemize}
+\textcolor{orange}{Maybe include here a graph to make the intuition behind the axioms explicit}
+
+Say for instance we mean to represent $ 3 $ using Peano notation, we would come up with $ s(s(s(0))) $. To add two numbers one can just use the set of rules:
+\[
+\begin{cases}
+  n + s(m) = s(n + m) \\
+  n + 0 = n
+\end{cases}
+\]
+A recursive rule that performs the addition, and a base case to stop the recursion for n + 0, since there is no such number that has $ 0 $ as succesor.
+\begin{definition} Representation of the set of all naturals, usually referred to as Church numerals:
 \begin{align*}
-0 &\equiv \lambda f.\lambda x. x \\
-1 &\equiv \lambda f.\lambda x. f\,x \\
-2 &\equiv \lambda f.\lambda x. f\,(f\,x) \\
-n &\equiv \lambda f.\lambda x. f^n\,x
+\texttt{0} &\equiv \la f.\la x. x \\
+\texttt{SUCC} &\equiv \la n. \la f. \la x . f ( n f x )
 \end{align*}
 
-\textbf{Booleans:}
+\end{definition}
+\begin{remark}
+  We defined the church numerals similarly to the peano axioms: by bringing into existance an initial element, and using the succesor function to define the rest of them. Let us apply \texttt{SUCC} a few times to illustrate:
+  \begin{align*}
+    \texttt{0} &\equiv \la f.\la x. x \\
+    \texttt{1} &\equiv \la f.\la x. f x \\
+    \texttt{2} &\equiv \la f.\la x. f f x \\
+    \texttt{3} &\equiv \la f.\la x. f f f x \\
+    \texttt{n} &\equiv \la f.\la x. f ^ n x
+  \end{align*}
+  where $ n $ denotes the number of times we append $ f $.
+\end{remark}
+Now that we have a construction for the naturals, we can define some arithmetic operations:
+\begin{align*}
+  \texttt{ADD} &\equiv \la m.\la n. \la f. \la x. m f ( n f x) \\
+  \texttt{MUL} &\equiv \la f.\la x. \la f. \la x. m (n f) x \\
+  \texttt{ISZERO} &\equiv \lambda n. n\,(\lambda x.\texttt{FALSE})\,\texttt{TRUE}
+\end{align*}
+This are left as a sidequest since they will not be used in the rest of the text.
+
+The next construction in line are the truth values of boolean logic, true and false in short.
+\begin{definition} Boolean truth values:
 \begin{align*}
 \texttt{TRUE} &\equiv \lambda t.\lambda f. t \\
 \texttt{FALSE} &\equiv \lambda t.\lambda f. f
 \end{align*}
-
-\textbf{Conditional:}
+\end{definition}
+\begin{remark}
+  \label{rem:true-false}
+  Note how $\TRUE \ M \ N \curly M $ and $ \FALSE \ M \ N \curly N $
+\end{remark}
+\begin{definition} Conditional, in other words \textit{``if statement''}.
 \begin{align*}
 \texttt{IF} &\equiv \lambda b.\lambda t.\lambda e. b\,t\,e
 \end{align*}
+\end{definition}
+The reality of the \IF \ is that it is just a combinator that happens to behave as a branching operator whenever we pass a church encoded boolean as a first argument.
+\begin{example} On the correct behabiour of $\IF$ i.e. check that it implements branching. $ M, N \in \La $ and $ \IF, \TRUE, \FALSE$ are as usual:
+  \[
+    \begin{aligned}
+      & \IF \ \TRUE \ M \ N \\
+      \equiv \ & (\la b.\la t.\la e.\, b\, t\, e) \ \TRUE \ M \ N  \\
+      \curly \ & (\la t.\la e.\, \TRUE\ t\, e) \ M \ N  \\
+      \curly \ & (\la e.\, \TRUE\ M\, e) \ N  \\
+      \curly \ & \TRUE\ M\, N \curly M 
+    \end{aligned}
+    \quad
+    \begin{aligned}
+      & \IF \ \FALSE \ M \ N \\
+      & \ldots \\
+      \curly \ & \FALSE\ M\, N \curly N
+    \end{aligned}
+  \]
+  So the \IF \ just combines $b, t, e$ in such a way that whenever b is a church encoded boolean either $t$ or $e$ is dropped depending on the truth value of $b$. See Remark \ref{rem:true-false}.
+\end{example}
 
-\textbf{Pairs:}
+\orange{A different combinator that behaves like IF, maybe lbltle.bel with symetic semantics}
+
+On the same track, another must have for programmers are lists. Sice they are a bit more involved, we require tuples to define them. Note that the \IF \ is a tuple that contains two elements, we query the first element using a \TRUE \ (i.e. the \textit{``then''} branch), and the sencond using a \FALSE \ (i.e. the \textit{´´else''} branch). We will be using this alternative definition for convenience:
+
+\begin{definition} Pairs of \lterms:
 \begin{align*}
 \texttt{PAIR} &\equiv \lambda x.\lambda y.\lambda f. f\,x\,y \\
 \texttt{FIRST} &\equiv \lambda p. p\,(\lambda x.\lambda y. x) \\
 \texttt{SECOND} &\equiv \lambda p. p\,(\lambda x.\lambda y. y)
 \end{align*}
+\end{definition}
+
+
+
+
+\newpage
 
 \textbf{Lists:}
 \begin{align*}
@@ -226,15 +318,6 @@ n &\equiv \lambda f.\lambda x. f^n\,x
 \texttt{TAIL} &\equiv \lambda l.\, \texttt{FIRST}\,(l\,(\lambda p.\lambda h.\, \texttt{PAIR}\,(\texttt{SECOND}\,p)\,(\texttt{CONS}\,h\,(\texttt{SECOND}\,p)))\,(\texttt{PAIR}\,\texttt{NIL}\,\texttt{NIL}))
 \end{align*}
 
-\textbf{Arithmetic:}
-\begin{align*}
-\texttt{SUCC} &\equiv \lambda n.\lambda f.\lambda x. f\,(n\,f\,x) \\
-\texttt{ADD} &\equiv \lambda m.\lambda n.\lambda f.\lambda x. m\,f\,(n\,f\,x) \\
-\texttt{MUL} &\equiv \lambda m.\lambda n.\lambda f. m\,(n\,f) \\
-\texttt{ISZERO} &\equiv \lambda n. n\,(\lambda x.\texttt{FALSE})\,\texttt{TRUE} \\
-\texttt{PRED} &\equiv \lambda n.\lambda f.\lambda x. n\,(\lambda g.\lambda h. h\,(g\,f))\,(\lambda u. x)\,(\lambda u. u) \\
-\texttt{SUB} &\equiv \lambda m.\lambda n. n\,\texttt{PRED}\,m
-\end{align*}
 
 \textbf{Recursion:}
 \begin{align*}
