@@ -2,7 +2,7 @@
 
 \usepackage[a4paper, margin=4cm]{geometry}
 \usepackage[english]{babel}
-\usepackage{amsmath, amssymb, amsthm, syntax, tikz, xcolor}
+\usepackage{amsmath, amssymb, amsthm, syntax, tikz, xcolor, forest}
 
 % Math notation for math blocks
 \newcommand{\la}{\lambda}
@@ -13,6 +13,10 @@
 \newcommand{\SUCC}{\texttt{SUCC}}
 \newcommand{\TRUE}{\texttt{TRUE}}
 \newcommand{\FALSE}{\texttt{FALSE}}
+\newcommand{\FST}{\texttt{FST}}
+\newcommand{\SND}{\texttt{SND}}
+\newcommand{\PAIR}{\texttt{PAIR}}
+\newcommand{\NIL}{\texttt{NIL}}
 
 \newcommand{\lCalc}{$\la$-Calculus}
 \newcommand{\lcalc}{$\la$-calculus}
@@ -51,7 +55,7 @@
 
 \chapter{\lCalc}
 
-\magenta{Add some introduction. Computation and meaning, operational vs denotational. historical note}
+\magenta{Add some introduction. Computation and meaning, extensional vs intensional, operational vs denotational. historical note}
 
 \section{\centering Untyped \lCalc}
 In order to get acquainted with the \lcalc, let us develop a simple example to familiarize ourselves before we begin with a more formal approach to this discipline. Consider the function $f(x) = x + 1$, the most straightforward way to express this using \lcalc \ would be $(\la x . x + 1 )$, where the lambda denotes that $x$ is being captured and used as a parameter to perform some computation \footnote{this is an e.g., $(\la x . x + 1 )$ is not a valid lambda term, see Definition \ref{def:lambda-terms-2}.}. Evaluating $f(2)$ using this newly created lambda term would look like this: $(\la x . x + 1)(2) \curly (2 + 1) \curly 3$. This process of reducing a $\la$-expression is referred to as \bred, it will be covered formally later in the chapter.
@@ -235,7 +239,7 @@ Now that we have a construction for the naturals, we can define some arithmetic 
 \end{align*}
 This are left as a sidequest since they will not be used in the rest of the text.
 
-The next construction in line are the truth values of boolean logic, true and false in short.
+The next construction in line are the truth values of boolean logic, ``\textit{true}'' and ``\textit{false}'' for short.
 \begin{definition} Boolean truth values:
 \begin{align*}
 \texttt{TRUE} &\equiv \lambda t.\lambda f. t \\
@@ -259,94 +263,121 @@ The reality of the \IF \ is that it is just a combinator that happens to behave 
       \equiv \ & (\la b.\la t.\la e.\, b\, t\, e) \ \TRUE \ M \ N  \\
       \curly \ & (\la t.\la e.\, \TRUE\ t\, e) \ M \ N  \\
       \curly \ & (\la e.\, \TRUE\ M\, e) \ N  \\
-      \curly \ & \TRUE\ M\, N \curly M 
+      \curly \ & \TRUE\ M\, N \curly^* M 
     \end{aligned}
     \quad
     \begin{aligned}
       & \IF \ \FALSE \ M \ N \\
-      & \ldots \\
-      \curly \ & \FALSE\ M\, N \curly N
+      \curly^* \ & \FALSE\ M\, N \curly N
     \end{aligned}
   \]
   So the \IF \ just combines $b, t, e$ in such a way that whenever b is a church encoded boolean either $t$ or $e$ is dropped depending on the truth value of $b$. See Remark \ref{rem:true-false}.
 \end{example}
 
-\magenta{A different combinator that behaves like IF, maybe lbltle.bel with symetic semantics}
+\magenta{How can we build every logic gate thus every logical function using if true and false. add reference to normalisation of logical propositions}
 
 On the same track, another must have for programmers are lists. Sice they are a bit more involved, we require tuples to define them. Note that the \IF \ is a tuple that contains two elements, we query the first element using a \TRUE \ (i.e. the \textit{``then''} branch), and the sencond using a \FALSE \ (i.e. the \textit{´´else''} branch). We will be using this alternative definition for convenience:
-
-\begin{definition} Pairs of \lterms:
+\begin{definition} \( \texttt{PAIR} \equiv \la x.\la y.\la f. f\,x\,y \)
+\end{definition}
+From this definition follows that \FST \ and \SND \ can be used to retrieve the first and second elements of the tuple:
 \begin{align*}
-\texttt{PAIR} &\equiv \lambda x.\lambda y.\lambda f. f\,x\,y \\
-\texttt{FIRST} &\equiv \lambda p. p\,(\lambda x.\lambda y. x) \\
-\texttt{SECOND} &\equiv \lambda p. p\,(\lambda x.\lambda y. y)
+  \FST &\equiv \la p. p\,(\la x.\la y. x) \\
+  \SND &\equiv \la p. p\,(\la x.\la y. y)
+\end{align*}
+A key property of $ \PAIR $'s is:
+\[\PAIR \, A \, B =_\beta \PAIR \, (\FST \, A \, B) \, (\SND \, A \, B) \]
+Using pairs, we now can define linear lists, we can achieve this using either left linear trees or right linear trees:
+\begin{center}
+  \[
+    \begin{aligned}
+      \boxed{
+      \begin{forest}
+        [\rotatebox{60}{\texttt{\ldots}}
+        [\PAIR
+        [\PAIR
+        [\NIL]
+        [\texttt{ELEM}]
+        ]
+        [\texttt{ELEM}]
+        ]
+        [\texttt{ELEM}]
+        ]
+      \end{forest}
+      }
+    \end{aligned}
+    \quad
+    \begin{aligned}
+      \boxed{
+      \begin{forest}
+        [\rotatebox{-60}{\texttt{\ldots}}
+        [\texttt{ELEM}]
+        [\PAIR
+        [\texttt{ELEM}]
+        [\PAIR
+        [\texttt{ELEM}]
+        [\NIL]
+        ]]]
+      \end{forest}
+      }
+    \end{aligned}
+  \]
+\end{center}
+
+\begin{definition}
+\begin{align*}
+\texttt{NIL} &\equiv \lambda f.\lambda z. z \\
+\texttt{CONS} &\equiv \lambda h.\lambda t.\lambda f.\lambda z. f\,h\,(t\,f\,z) \\
 \end{align*}
 \end{definition}
+
+\begin{align*}
+\texttt{IS\_NIL} &\equiv \lambda l. l\,(\lambda h.\lambda t. \texttt{FALSE})\,\texttt{TRUE} \\
+\texttt{HEAD} &\equiv \lambda l. l\,(\lambda h.\lambda t. h)\,\text{undef} \\
+\texttt{TAIL} &\equiv \lambda l.\, \texttt{FIRST}\,(l\,(\lambda p.\lambda h.\, \texttt{PAIR}\,(\texttt{SECOND}\,p)\,(\texttt{CONS}\,h\,(\texttt{SECOND}\,p)))\,(\texttt{PAIR}\,\texttt{NIL}\,\texttt{NIL}))
+\end{align}
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 
 
 \newpage
+\centering{\blue{left blank}}
 
-\textbf{Lists:}
-\begin{align*}
-\texttt{NIL} &\equiv \lambda f.\lambda z. z \\
-\texttt{CONS} &\equiv \lambda h.\lambda t.\lambda f.\lambda z. f\,h\,(t\,f\,z) \\
-\texttt{IS\_NIL} &\equiv \lambda l. l\,(\lambda h.\lambda t. \texttt{FALSE})\,\texttt{TRUE} \\
-\texttt{HEAD} &\equiv \lambda l. l\,(\lambda h.\lambda t. h)\,\text{undef} \\
-\texttt{TAIL} &\equiv \lambda l.\, \texttt{FIRST}\,(l\,(\lambda p.\lambda h.\, \texttt{PAIR}\,(\texttt{SECOND}\,p)\,(\texttt{CONS}\,h\,(\texttt{SECOND}\,p)))\,(\texttt{PAIR}\,\texttt{NIL}\,\texttt{NIL}))
-\end{align*}
-
+\newpage
 
 \textbf{Recursion:}
 \begin{align*}
 \texttt{Y} &\equiv \lambda f.(\lambda x. f\,(x\,x))\,(\lambda x. f\,(x\,x))
 \end{align*}
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
 \subsection{\centering Fixed Point Combinators and Recursion}
-
 Y combinator.
 \[
 Y \triangleq \lambda f.\, (\lambda x.\, f\, (x\, x))\, (\lambda x.\, f\, (x\, x))
 \]
-
 Turing combinator
 \[
 \Theta \triangleq 
 (\lambda x\, f.\, f\, (x\, x\, f))\, (\lambda x\, f.\, f\, (x\, x\, f))
 \]
-
 Z combinator
 \[
 Z \triangleq \lambda f.\, 
   (\lambda x.\, f\, (\lambda v.\, x\, x\, v))\, 
   (\lambda x.\, f\, (\lambda v.\, x\, x\, v))
 \]
-
 \magenta{Turing completeness of the \lcalc} 
-
-
 \section{\centering Simply Typed \lCalc}
-
-
 \magenta{rewrite this pls $==>$}
 
 The Untyped Lambda Calculus in computationally equivalent to a  Turing machine. However, with great computational power comes limited decidability of properties, leading to non-termination, or expressions such as $x(\lambda y . y)$, whose meaning is unclear.
@@ -358,26 +389,8 @@ A classic example of non-termination is the $Y$ combinator, however, the Simply 
 To understand why, consider the role of function types: in the world of functions, a function maps values from a domain to a range. The Simply Typed Lambda Calculus enforces this structure explicitly, ensuring that every function application is well-typed and preventing self-application patterns that would lead to paradoxes or infinite loops.
 
 Having grasped the untyped lambda calculus's Turing completeness and ability to compute all computable functions, we now seek properties related to decidability. To this end, we introduce the simply typed lambda calculus. Although it possesses less computational power than its untyped counterpart, it offers attractive features regarding decidability that will be useful later on.
-
-
 \chapter{The Curry-Howard Correspondence}
-
-
 \section*{\centering A Primer on Logic}
 \magenta{build up to first order logic}
-
-
-
-
 \end{document}
 
-
-
-
-
-
-
-%%% Local Variables:
-%%% mode: LaTeX
-%%% TeX-master: t
-%%% End:
