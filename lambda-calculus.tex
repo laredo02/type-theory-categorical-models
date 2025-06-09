@@ -1,58 +1,6 @@
 \documentclass[12pt]{book}
 
-\usepackage[a4paper, margin=4cm]{geometry}
-\usepackage[english]{babel}
-\usepackage{amsmath, amssymb, amsthm, syntax, tikz, xcolor, forest}
-
-% Math notation for math blocks
-\newcommand{\la}{\lambda}
-\newcommand{\La}{\Lambda}
-\newcommand{\Vset}{V}
-\newcommand{\NAT}{\mathbb{N}}
-\newcommand{\IF}{\texttt{IF}}
-\newcommand{\SUCC}{\texttt{SUCC}}
-\newcommand{\TRUE}{\texttt{TRUE}}
-\newcommand{\FALSE}{\texttt{FALSE}}
-\newcommand{\FST}{\texttt{FST}}
-\newcommand{\SND}{\texttt{SND}}
-\newcommand{\PAIR}{\texttt{PAIR}}
-\newcommand{\NIL}{\texttt{NIL}}
-\newcommand{\NOT}{\texttt{NOT}}
-\newcommand{\AND}{\texttt{AND}}
-\newcommand{\OR}{\texttt{OR}}
-
-\newcommand{\lCalc}{$\la$-Calculus}
-\newcommand{\lcalc}{$\la$-calculus}
-\newcommand{\bred}{$\beta$-reduction}
-\newcommand{\lterm}{$\la$-term}
-\newcommand{\lterms}{$\la$-terms}
-\newcommand{\lexpr}{$\la$-expression}
-
-\newcommand{\orange}[1]{\textcolor{orange}{#1}}
-\newcommand{\magenta}[1]{\textcolor{magenta}{#1}}
-\newcommand{\blue}[1]{\textcolor{blue}{#1}}
-\newcommand{\green}[1]{\textcolor{green}{#1}}
-
-\newcommand{\functionfont}[1]{\mathbf{#1}}
-\newcommand{\curly}{\mathrel{\leadsto}_\beta}
-\newcommand{\Sub}[1]{\functionfont{Sub}(#1)}
-\newcommand{\Subb}{\functionfont{Sub}}
-\newcommand{\FV}[1]{\functionfont{FV}(#1)}
-\newcommand{\FVV}{\functionfont{FV}}
-
-% Theorems and lemmas
-\theoremstyle{plain}
-\newtheorem{theorem}{Theorem}[section]
-\theoremstyle{definition}
-\newtheorem{definition}{Definition}[section]
-\theoremstyle{definition}
-\newtheorem{example}{Example}[section]
-\theoremstyle{definition}
-\newtheorem{remark}{Remark}
-%\newtheorem*{remark}{Remark}
-
-\title{Type Theory and Categorical Models: A Unified Approach}
-\author{Miguel Laredo}
+\input{packages.tex}
 
 \begin{document}
 
@@ -139,12 +87,12 @@ Having defined the language of the \lcalc, we move on to the mechanics of comput
 \end{definition}
 Since every lambda term is made up of other smaller lambda terms, it is only natural to define the set that contains all subterms of a given term:
 \begin{definition} Given $T \in \La$, $\functionfont{Sub} : \La \to \mathcal{P}(\Vset)$ maps terms to the set of it's subterms.
-\begin{align*}
-  &\Sub x = \{x\} \\
-  &\Sub {MN} = \Sub M  \cup \Sub N \cup \{MN\} \\
-  &\Sub {\lambda x . M} = \Sub M  \cup \{\lambda x. M\}
-\end{align*}
-Where $x \in \mathbb{V}$ and $M, N \in \Lambda $.
+  \begin{align*}
+    &\Sub x = \{x\} \\
+    &\Sub {MN} = \Sub M  \cup \Sub N \cup \{MN\} \\
+    &\Sub {\lambda x . M} = \Sub M  \cup \{\lambda x. M\}
+  \end{align*}
+  Where $x \in \mathbb{V}$ and $M, N \in \Lambda $.
 \end{definition}
 \begin{remark}
   Let \( \preceq \) be the subterm relation on \lterms, defined by
@@ -156,8 +104,8 @@ Where $x \in \mathbb{V}$ and $M, N \in \Lambda $.
 \begin{definition} A term $M \in \Sub M, \ M \in \Lambda$ is said to be proper if $S \neq M$. Thus, $\Sub{M} \setminus \{M\}$ would be the set of proper subterms.
 \end{definition}
 \begin{definition} Let \( M = \lambda x. N \) be a \lterm:
-\begin{itemize}
-\item The variable \( x \) is the binding variable of the abstraction \( \lambda x. N \).
+  \begin{itemize}
+  \item The variable \( x \) is the binding variable of the abstraction \( \lambda x. N \).
   \item An occurrence of a variable \( x \) in \( M \) is bound if \( x \in \Sub { \lambda x. N } \).
   \end{itemize}
 \end{definition}
@@ -209,18 +157,18 @@ We begin defining $ \mathbb{N} $ for no particular reason \orange{other than the
 
 Say for instance we mean to represent $ 3 $ using Peano notation, we would come up with $ s(s(s(0))) $. To add two numbers one can just use the set of rules:
 \[
-\begin{cases}
-  n + s(m) = s(n + m) \\
-  n + 0 = n
-\end{cases}
+  \begin{cases}
+    n + s(m) = s(n + m) \\
+    n + 0 = n
+  \end{cases}
 \]
 A recursive rule that performs the addition, and a base case to stop the recursion for n + 0, since there is no such number that has $ 0 $ as succesor.
 \begin{definition} Representation of the set of all naturals, usually referred to as Church numerals:
-\label{def:church-naturals}
-\begin{align*}
-\texttt{0} &\equiv \la f.\la x. x \\
-\texttt{SUCC} &\equiv \la n. \la f. \la x . f ( n f x )
-\end{align*}
+  \label{def:church-naturals}
+  \begin{align*}
+    \texttt{0} &\equiv \la f.\la x. x \\
+    \texttt{SUCC} &\equiv \la n. \la f. \la x . f ( n f x )
+  \end{align*}
 
 \end{definition}
 \begin{remark}
@@ -244,19 +192,19 @@ This are left as a sidequest since they will not be used in the rest of the text
 
 The next construction in line are the truth values of boolean logic, ``\textit{true}'' and ``\textit{false}'' for short.
 \begin{definition} Boolean truth values:
-\begin{align*}
-\texttt{TRUE} &\equiv \lambda t.\lambda f. t \\
-\texttt{FALSE} &\equiv \lambda t.\lambda f. f
-\end{align*}
+  \begin{align*}
+    \texttt{TRUE} &\equiv \lambda t.\lambda f. t \\
+    \texttt{FALSE} &\equiv \lambda t.\lambda f. f
+  \end{align*}
 \end{definition}
 \begin{remark}
   \label{rem:true-false}
   Note how $\TRUE \ M \ N \curly M $ and $ \FALSE \ M \ N \curly N $
 \end{remark}
 \begin{definition} Conditional, in other words \textit{``if statement''}.
-\begin{align*}
-\texttt{IF} &\equiv \lambda b.\lambda t.\lambda e. b\,t\,e
-\end{align*}
+  \begin{align*}
+    \texttt{IF} &\equiv \lambda b.\lambda t.\lambda e. b\,t\,e
+  \end{align*}
 \end{definition}
 The reality of the \IF \ is that it is just a combinator that happens to behave as a branching operator whenever we pass a church encoded boolean as a first argument.
 \begin{example} On the correct behabiour of $\IF$ i.e. check that it implements branching. $ M, N \in \La $ and $ \IF, \TRUE, \FALSE$ are as usual:
@@ -276,14 +224,14 @@ The reality of the \IF \ is that it is just a combinator that happens to behave 
   \]
   So the \IF \ just combines $b, t, e$ in such a way that whenever b is a church encoded boolean either $t$ or $e$ is dropped depending on the truth value of $b$. See Remark \ref{rem:true-false}.
 \end{example}
-
-Using the \IF \ we can implement an universal set of logic gates:
-\begin{align*}
-  \NOT &\equiv \IF \, b \, \FALSE \, \TRUE \\
-  \AND &\equiv \IF \, a \, (\IF \, b \, \TRUE \, \FALSE) \, \FALSE
-\end{align*}
-This allows us to simulate a nand gate, known to be universal \ref{}. Thus, the lambda calculus is at least equivalent to propositional logic.
-
+\begin{remark}
+  Using the \IF \ we can implement an universal set of logic gates:
+  \begin{align*}
+    \NOT &\equiv \IF \, b \, \FALSE \, \TRUE \\
+    \AND &\equiv \IF \, a \, (\IF \, b \, \TRUE \, \FALSE) \, \FALSE
+  \end{align*}
+  This allows us to simulate a nand gate, known to be universal \orange{\ref{} universality, conjunctive normal form}. Thus, the lambda calculus is at least equivalent to propositional logic \orange{\ref{} Something on turing completeness}.
+\end{remark}
 On the same track, another must-have for programmers is lists. Sice they are a bit more involved, we require tuples to define them. Note that the \IF \ is a tuple that contains two elements, we query the first element using a \TRUE \ (i.e. the \textit{``then''} branch), and the sencond using a \FALSE \ (i.e. the \textit{´´else''} branch). We will be using this alternative definition for convenience:
 \begin{definition} \( \texttt{PAIR} \equiv \la x.\la y.\la f. f\,x\,y \)
 \end{definition}
@@ -331,14 +279,15 @@ Using pairs, we now can define linear lists, we can achieve this using either le
   \]
 \end{center}
 \begin{definition} We define \NIL \ in the same way we defined \texttt{0} and \FALSE \ before: $ \NIL \equiv \la f.\la z. z $.
-
 \end{definition}
 \begin{align*}
-\texttt{CONS} &\equiv \la h.\la t.\la f.\la z. f\,h\,(t\,f\,z) \\
-\texttt{IS\_NIL} &\equiv \la l. l\,(\la h.\la t. \texttt{FALSE})\,\texttt{TRUE} \\
-\texttt{HEAD} &\equiv \la l. l\,(\la h.\la t. h)\,\text{undef} \\
-\texttt{TAIL} &\equiv \la l.\, \texttt{FIRST}\,(l\,(\la p.\la h.\, \texttt{PAIR}\,(\texttt{SECOND}\,p)\,(\texttt{CONS}\,h\,(\texttt{SECOND}\,p)))\,(\texttt{PAIR}\,\texttt{NIL}\,\texttt{NIL}))
-\end{align}
+  \texttt{CONS} &\equiv \la h.\la t.\la f.\la z. f\,h\,(t\,f\,z) \\
+  \texttt{IS\_NIL} &\equiv \la l. l\,(\la h.\la t. \texttt{FALSE})\,\texttt{TRUE} \\
+  \texttt{HEAD} &\equiv \la l. l\,(\la h.\la t. h)\,\text{undef} \\
+  \texttt{TAIL} &\equiv \la l.\, \texttt{FIRST}\,(l\,(\la p.\la h.\, \texttt{PAIR}\,(\texttt{SECOND}\,p)\,(\texttt{CONS}\,h\,(\texttt{SECOND}\,p)))\,(\texttt{PAIR}\,\texttt{NIL}\,\texttt{NIL}))
+\end{align*}
+
+
 
 
 
@@ -358,61 +307,25 @@ Using pairs, we now can define linear lists, we can achieve this using either le
 \newpage
 \centering{\blue{left blank}}
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
 \newpage
 
 \textbf{Recursion:}
 \begin{align*}
-\texttt{Y} &\equiv \lambda f.(\lambda x. f\,(x\,x))\,(\lambda x. f\,(x\,x))
+  \texttt{Y} &\equiv \lambda f.(\lambda x. f\,(x\,x))\,(\lambda x. f\,(x\,x))
 \end{align*}
 \subsection{\centering Fixed Point Combinators and Recursion}
 Y combinator.
 \[
-Y \triangleq \lambda f.\, (\lambda x.\, f\, (x\, x))\, (\lambda x.\, f\, (x\, x))
+  Y \triangleq \lambda f.\, (\lambda x.\, f\, (x\, x))\, (\lambda x.\, f\, (x\, x))
 \]
 Turing combinator
 \[
-\Theta \triangleq 
-(\lambda x\, f.\, f\, (x\, x\, f))\, (\lambda x\, f.\, f\, (x\, x\, f))
+  \Theta \triangleq 
+  (\lambda x\, f.\, f\, (x\, x\, f))\, (\lambda x\, f.\, f\, (x\, x\, f))
 \]
 Z combinator
 \[
-Z \triangleq \lambda f.\, 
+  Z \triangleq \lambda f.\, 
   (\lambda x.\, f\, (\lambda v.\, x\, x\, v))\, 
   (\lambda x.\, f\, (\lambda v.\, x\, x\, v))
 \]
