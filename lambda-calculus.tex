@@ -19,7 +19,7 @@ In order to get acquainted with the \lcalc, let us develop a simple example to f
   \end{itemize}
   Where $\Vset = \{x, y, z, ... \}$ represents a countably infinite set of variable names.
 \end{definition}
-The key takeaway of this definition is that abstraction and application together, encapsulate the meaning of function in a way that when combined with \bred \ allows us to perform computation.
+The key takeaway of this definition is that abstraction and application together, encapsulate the meaning of function in a way that when combined with \bred \ \ref{} allows us to perform computation.
 
 Since we are dealing with a formal language, it is in our benefit to introduce a few other objects with the aim of defining a grammar to generate the set $\La$:
 \begin{itemize}
@@ -59,7 +59,7 @@ Thus, to define the language for natural numbers in decimal notation:
   \( (\la x. (\la y. x)) \),
   \( (((\la x. (x y)) (\la y. y)) z) \).
 \end{example}
-As a convention to avoid notational cluttering, the outermost parenthesis can be omitted (e.g. $ ( \la x.x ) $ can be read as $ \la x.x $). Also, application is left-associative  and binds tighter than abstraction, so $M N P$ is parsed as $(M N) P$ and $\la x . M N$ means $\la x . (M N)$, not $(\la x . M) N$. Likewise, abstraction is right-associative (e.g. $\la x . \la y . M$ is $\la x . (\la y . M)$) and binds more weakly than application. All these are just to keep notation straight-forward, the formal definition does not leave precedence under-specified thanks to parenthesis.
+As a convention to avoid notational cluttering, the outermost parenthesis can be omitted e.g. $ ( \la x.x ) $ can be read as $ \la x.x $. Also, application is left-associative  and binds tighter than abstraction, so $M N P$ is parsed as $(M N) P$ and $\la x . M N$ means $\la x . (M N)$, not $(\la x . M) N$. Likewise, abstraction is right-associative e.g. $\la x . \la y . M$ is $\la x . (\la y . M)$ and binds more weakly than application. All these are just to keep notation straight-forward, the formal definition does not leave precedence under-specified thanks to parenthesis.
 \subsection{\centering Equivalence of terms}
 Having defined the language of the \lcalc, we move on to the mechanics of computation. To this end, several equivalence relations among terms will be defined. Let us begin by introducing the set that contains all variables that are not bound to the term via an abstraction.
 \begin{definition} Given $T \in \La $, $\functionfont{FV} : \La \to \mathcal{P}(\Vset) $ outputs the set of free variables for $T$:
@@ -73,7 +73,7 @@ Having defined the language of the \lcalc, we move on to the mechanics of comput
 \begin{example}
   Compute the free variables of $\lambda x . \lambda y . y x z$:
   
-  The term is indeed well-formed and thus belongs to $\La$, allowing us to proceed:
+  The term well-formed, thus belongs to $\La$, so we proceed:
   \begin{align*}
     \FV {\lambda x . \lambda y . y x z} &= \FV {\lambda y . yxz} \setminus \{x\} \\
                                         &= \FV {yxz} \setminus \{x, y\} \\
@@ -83,16 +83,16 @@ Having defined the language of the \lcalc, we move on to the mechanics of comput
   Of course, $z$ is the only free variable in the expression as it is the only variable that is not captured by some $\la$-abstraction.
 \end{example}
 \begin{definition}
-  A term $M \in \Lambda$ is closed if and only if $\FV M = \emptyset$, closed lambda terms are often referred to as combinators. $\Lambda^0$ is the set of all closed lambda terms.
+  A term $M \in \La$ is closed if and only if $\FV M = \emptyset$, closed lambda terms are often referred to as combinators. $\Lambda^0$ is the set of all closed lambda terms.
 \end{definition}
 Since every lambda term is made up of other smaller lambda terms, it is only natural to define the set that contains all subterms of a given term:
 \begin{definition} Given $T \in \La$, $\functionfont{Sub} : \La \to \mathcal{P}(\Vset)$ maps terms to the set of it's subterms.
   \begin{align*}
     &\Sub x = \{x\} \\
     &\Sub {MN} = \Sub M  \cup \Sub N \cup \{MN\} \\
-    &\Sub {\lambda x . M} = \Sub M  \cup \{\lambda x. M\}
+    &\Sub {\la x . M} = \Sub M  \cup \{\la x. M\}
   \end{align*}
-  Where $x \in \mathbb{V}$ and $M, N \in \Lambda $.
+  Where $x \in \Vset$ and $M, N \in \La $.
 \end{definition}
 \begin{remark}
   Let \( \preceq \) be the subterm relation on \lterms, defined by
@@ -101,7 +101,7 @@ Since every lambda term is made up of other smaller lambda terms, it is only nat
   \]
   \( \preceq \) is a partial order relation. This statement is follows intuitively from the definition, it can be proven using induction on the derivation tree.
 \end{remark}
-\begin{definition} A term $M \in \Sub M, \ M \in \Lambda$ is said to be proper if $S \neq M$. Thus, $\Sub{M} \setminus \{M\}$ would be the set of proper subterms.
+\begin{definition} A term $M \in \Sub M, \ M \in \Lambda$ is said to be proper if $S \neq M$. $\Sub{M} \setminus \{M\}$ would be the set of proper subterms.
 \end{definition}
 \begin{definition} Let \( M = \lambda x. N \) be a \lterm:
   \begin{itemize}
@@ -133,8 +133,8 @@ Having covered \bred, we now explore a key aspect of the \lcalc, in the jargon r
   \overbrace { (\lambda f . \lambda y . f f y) }^{A} \overbrace{ (\lambda x . x + 1) }^{B} \overbrace{(2)}^{C}
   &\curly (\lambda y .(\lambda x . x + 1) (\lambda x . x + 1)y)(2) \\
   &\curly (\lambda x . x + 1)(\lambda x . x + 1)(2) \\
-  &\curly (\lambda x . x + 1) (3) \\
-  &\curly (4)
+  &\curly^* (\lambda x . x + 1) (3) \\
+  &\curly^* (4)
 \end{align*}
 
 Taking a closer look, $A$, applies $f$ twice to $x$, as a consequence, $B$ is being applied twice to $C$. And so, very easily, we have implemented the $ x + 2 $ function via a sequential application of $x + 1$ to $C$. One can intuitively apreciate the computational expresivenes this brings with it, and how the sintactic-semantic homogeneity sets the \lcalc \ apart from the classical set-theoretic approach to functions.
@@ -149,7 +149,7 @@ We begin defining $ \mathbb{N} $ for no particular reason \orange{other than the
 \begin{itemize}
 \item (Zero) \( 0 \in \NAT \)
 \item (Successor) \( \forall x \in \NAT, s(x) \in \NAT \)
-\item (Initial) \( \forall x \in \NAT, s(x) \neq 0 \)
+\item (Initial) \( \forall x \in \NAT, s(x) \neq 0 \) \label{def:peano-nat-initial}
 \item (Injectivity) \( \forall x, y \in \NAT, s(x) = s(y) \Rightarrow x = y \)
 \item (Induction) \( P(0) \land \forall ( P(x) \Rightarrow P(s(x))) \Rightarrow \forall x,  P (x) \)
 \end{itemize}
@@ -162,7 +162,7 @@ Say for instance we mean to represent $ 3 $ using Peano notation, we would come 
     n + 0 = n
   \end{cases}
 \]
-A recursive rule that performs the addition, and a base case to stop the recursion for n + 0, since there is no such number that has $ 0 $ as succesor.
+A recursive rule that performs the addition, and a base case to stop the recursion for n + 0, since there is no such number that has $ 0 $ as succesor \ref{def:peano-nat-initial}.
 \begin{definition} Representation of the set of all naturals, usually referred to as Church numerals:
   \label{def:church-naturals}
   \begin{align*}
@@ -172,7 +172,7 @@ A recursive rule that performs the addition, and a base case to stop the recursi
 
 \end{definition}
 \begin{remark}
-  We defined the church numerals similarly to the peano axioms: by bringing into existance an initial element, and using the succesor function to define the rest of them. Let us apply \texttt{SUCC} a few times to illustrate:
+  The church numerals have been defined similarly to the peano axioms, that is, by bringing into existance an initial element and using the succesor function to define the rest of them. Let us apply \texttt{SUCC} a few times to illustrate:
   \begin{align*}
     \texttt{0} &\equiv \la f.\la x. x \\
     \texttt{1} &\equiv \la f.\la x. f x \\
@@ -232,16 +232,21 @@ The reality of the \IF \ is that it is just a combinator that happens to behave 
   \end{align*}
   This allows us to simulate a nand gate, known to be universal \orange{\ref{} universality, conjunctive normal form}. Thus, the lambda calculus is at least equivalent to propositional logic \orange{\ref{} Something on turing completeness}.
 \end{remark}
-On the same track, another must-have for programmers is lists. Sice they are a bit more involved, we require tuples to define them. Note that the \IF \ is a tuple that contains two elements, we query the first element using a \TRUE \ (i.e. the \textit{``then''} branch), and the sencond using a \FALSE \ (i.e. the \textit{´´else''} branch). We will be using this alternative definition for convenience:
-\begin{definition} \( \texttt{PAIR} \equiv \la x.\la y.\la f. f\,x\,y \)
+On the same track, another must-have for programmers is lists. Sice they are a bit more involved, we require tuples to define them. Note that the \IF \ is a tuple that contains two elements, we query the first element using a \TRUE \ i.e. the \textit{``then''} branch, and the sencond using a \FALSE \ i.e. the \textit{``else''} branch. We will be using this alternative definition for convenience:
+\begin{definition} \( \PAIR \equiv \la x.\la y.\la f. f\,x\,y \)
 \end{definition}
-From this definition follows that \FST \ and \SND \ can be used to retrieve the first and second elements of the tuple:
+\begin{remark}
+  This is more convenient since $ \PAIR \, M \, N \curly^* \la f . f \, M \, N  $, which allows us to query the first element using $ (\la f . f \, M \, N) \, \TRUE $ and the second by $ (\la f . f \, M \, N) \, \FALSE $, this motivates the definition below:
+\begin{definition}
 \begin{align*}
   \FST &\equiv \la p. p\,(\la x.\la y. x) \\
   \SND &\equiv \la p. p\,(\la x.\la y. y)
 \end{align*}
-A key property of $ \PAIR $'s is:
-\[\PAIR \, A \, B =_\beta \PAIR \, (\FST \, A \, B) \, (\SND \, A \, B) \]
+\end{definition}
+
+\begin{proposition} A key property of $ \PAIR $'s is:
+  \[\PAIR \, A \, B \equiv_\beta \PAIR \, (\FST \, A \, B) \, (\SND \, A \, B) \]
+\end{proposition}
 Using pairs, we now can define linear lists, we can achieve this using either left linear trees or right linear trees:
 \begin{center}
   \[
@@ -278,19 +283,18 @@ Using pairs, we now can define linear lists, we can achieve this using either le
     \end{aligned}
   \]
 \end{center}
-\begin{definition} We define \NIL \ in the same way we defined \texttt{0} and \FALSE \ before: $ \NIL \equiv \la f.\la z. z $.
+\begin{definition} We define \NIL \ in the same way we defined \texttt{0} and \FALSE \ before: $ \NIL \equiv \la f.\la z. z $. \NIL \ represents the terminating element of the inductive definition for lists.
 \end{definition}
+\begin{note}
+  This notion of inductively defined lists is lays the foundations of the \textbf{LISP} family of programming languages, hence the name (LISt Processing).
+\end{note}
+\begin{definition} Relevant list operators:
 \begin{align*}
   \texttt{CONS} &\equiv \la h.\la t.\la f.\la z. f\,h\,(t\,f\,z) \\
-  \texttt{IS\_NIL} &\equiv \la l. l\,(\la h.\la t. \texttt{FALSE})\,\texttt{TRUE} \\
-  \texttt{HEAD} &\equiv \la l. l\,(\la h.\la t. h)\,\text{undef} \\
-  \texttt{TAIL} &\equiv \la l.\, \texttt{FIRST}\,(l\,(\la p.\la h.\, \texttt{PAIR}\,(\texttt{SECOND}\,p)\,(\texttt{CONS}\,h\,(\texttt{SECOND}\,p)))\,(\texttt{PAIR}\,\texttt{NIL}\,\texttt{NIL}))
-\end{align*}
-
-
-
-
-
+  \texttt{ISNIL} &\equiv \la l. l\,(\la h.\la t. \FALSE)\,\TRUE \\
+  \texttt{HEAD} &\equiv \la l. l\,(\la h.\la t. h)\,\text{undef}
+\end{align*}  
+\end{definition}
 
 
 
@@ -306,6 +310,18 @@ Using pairs, we now can define linear lists, we can achieve this using either le
 
 \newpage
 \centering{\blue{left blank}}
+
+
+
+\begin{align*}
+  \texttt{CONS} &\equiv \la h.\la t.\la f.\la z. f\,h\,(t\,f\,z) \\
+  \texttt{IS\_NIL} &\equiv \la l. l\,(\la h.\la t. \texttt{FALSE})\,\texttt{TRUE} \\
+  \texttt{HEAD} &\equiv \la l. l\,(\la h.\la t. h)\,\text{undef} \\
+  \texttt{TAIL} &\equiv \la l.\, \texttt{FIRST}\,(l\,(\la p.\la h.\, \texttt{PAIR}\,(\texttt{SECOND}\,p)\,(\texttt{CONS}\,h\,(\texttt{SECOND}\,p)))\,(\texttt{PAIR}\,\texttt{NIL}\,\texttt{NIL}))
+\end{align*}
+
+
+
 
 \newpage
 
