@@ -4,6 +4,10 @@
 
 \begin{document}
 
+\chapter{Introduction}
+
+\orange{The flow of the document, what will be covered (UTLC, STLC, DTLC, Curry-Howard, LCCCs...). The aim of the document. Things will be formal but for key constructions that are deemed to be of practical use, a simple implementation will be given, usually in haskell, lean or similar. }
+
 \chapter{\lCalc}
 
 \magenta{Add some introduction. Computation and meaning, extensional vs intensional, operational vs denotational. historical note}
@@ -48,16 +52,26 @@ Thus, to define the language for natural numbers in decimal notation:
     \texttt{<variable>} &\;\texttt{::}\in V
   \end{align*}
   \label{def:lambda-terms-2}
-  where \( \Sigma = \{ \la, ., (, )\} \cup \Vset \) and \( \La \subset \Sigma^* \).
+  where \( \Sigma = \{ \la, ., (, )\} \cup \Vset \) and \( \La \subset \Sigma^* \). Through use of algebraic types \footnote{Algebraic Data Types are inductively defined types built from sums (either this or that) of products (this and that). They let you define structured data with multiple forms and support safe, exhaustive pattern matching. }, this grammar can be implemented in Haskell:
+  \begin{lstlisting}[style=haskellstyle,caption={Grammar implementation of the \lcalc \ language using Haskell's algebraic types}]
+data LambdaTerm = Var String
+                | App LambdaTerm LambdaTerm
+                | Abs String LambdaTerm
+{- variable names are implemented using strings -}
+  \end{lstlisting}
 \end{definition}
 \begin{remark}
   From the definition above we extract that \( \lambda x . x + 1 \notin \La \), given this circumstance, the need to find an accurate representation for numbers within this definition arises. See Definition \ref{def:church-naturals}
 \end{remark}
-\begin{example} Some examples of valid $\la$ terms generated using the grammar in \ref{def:lambda-terms-2}:
+\begin{example} \label{ex:lambda-terms} Some examples of valid $\la$ terms generated using the grammar in \ref{def:lambda-terms-2}:
   \( y \),
   \( (\la x. (x x)) \),
   \( (\la x. (\la y. x)) \),
   \( (((\la x. (x y)) (\la y. y)) z) \).
+  The haskell counterpart for the second term is:
+  \begin{lstlisting}[style=haskellstyle,caption={Haskell interpretation of the second term}]
+Abs "x" (App (Var "x") (Var "x"))
+  \end{lstlisting}
 \end{example}
 As a convention to avoid notational cluttering, the outermost parenthesis can be omitted e.g. $ ( \la x.x ) $ can be read as $ \la x.x $. Also, application is left-associative  and binds tighter than abstraction, so $M N P$ is parsed as $(M N) P$ and $\la x . M N$ means $\la x . (M N)$, not $(\la x . M) N$. Likewise, abstraction is right-associative e.g. $\la x . \la y . M$ is $\la x . (\la y . M)$ and binds more weakly than application. All these are just to keep notation straight-forward, the formal definition does not leave precedence under-specified thanks to parenthesis.
 \subsection{\centering Equivalence of terms}
@@ -101,7 +115,7 @@ Since every lambda term is made up of other smaller lambda terms, it is only nat
   \]
   \( \preceq \) is a partial order relation. This statement is follows intuitively from the definition, it can be proven using induction on the derivation tree.
 \end{remark}
-\begin{definition} A term $M \in \Sub M, \ M \in \Lambda$ is said to be proper if $S \neq M$. $\Sub{M} \setminus \{M\}$ would be the set of proper subterms.
+\begin{definition} A term $ S \in \Sub M, \ M \in \Lambda$ is said to be proper if $S \neq M$. $\Sub{M} \setminus \{M\}$ would be the set of proper subterms.
 \end{definition}
 \begin{definition} Let \( M = \lambda x. N \) be a \lterm:
   \begin{itemize}
@@ -237,13 +251,13 @@ On the same track, another must-have for programmers is lists. Sice they are a b
 \end{definition}
 \begin{remark}
   This is more convenient since $ \PAIR \, M \, N \curly^* \la f . f \, M \, N  $, which allows us to query the first element using $ (\la f . f \, M \, N) \, \TRUE $ and the second by $ (\la f . f \, M \, N) \, \FALSE $, this motivates the definition below:
+\end{remark}
 \begin{definition}
 \begin{align*}
   \FST &\equiv \la p. p\,(\la x.\la y. x) \\
   \SND &\equiv \la p. p\,(\la x.\la y. y)
 \end{align*}
 \end{definition}
-
 \begin{proposition} A key property of $ \PAIR $'s is:
   \[\PAIR \, A \, B \equiv_\beta \PAIR \, (\FST \, A \, B) \, (\SND \, A \, B) \]
 \end{proposition}
@@ -283,18 +297,20 @@ Using pairs, we now can define linear lists, we can achieve this using either le
     \end{aligned}
   \]
 \end{center}
-\begin{definition} We define \NIL \ in the same way we defined \texttt{0} and \FALSE \ before: $ \NIL \equiv \la f.\la z. z $. \NIL \ represents the terminating element of the inductive definition for lists.
+\begin{definition} We define \NIL \ in the same way we defined \texttt{0} and \FALSE \ before: $ \NIL \equiv \la f.\la z. z $; \NIL \ represents the terminating element of the inductive definition for lists. To build lists, we cons lists together using:
+  \[ \texttt{CONS} \equiv \la h.\la t.\la f.\la z. f\,h\,(t\,f\,z) \]
+that binds a new element $h$ to to an pre-existing list or to \NIL.
 \end{definition}
 \begin{note}
   This notion of inductively defined lists is lays the foundations of the \textbf{LISP} family of programming languages, hence the name (LISt Processing).
 \end{note}
 \begin{definition} Relevant list operators:
 \begin{align*}
-  \texttt{CONS} &\equiv \la h.\la t.\la f.\la z. f\,h\,(t\,f\,z) \\
   \texttt{ISNIL} &\equiv \la l. l\,(\la h.\la t. \FALSE)\,\TRUE \\
   \texttt{HEAD} &\equiv \la l. l\,(\la h.\la t. h)\,\text{undef}
 \end{align*}  
 \end{definition}
+
 
 
 

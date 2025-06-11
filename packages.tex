@@ -13,6 +13,42 @@
 \usepackage{mathrsfs}
 \usepackage{stmaryrd}
 \usepackage{enumitem}
+\usepackage{listings}
+\usepackage{xcolor}
+
+% Define Haskell colors
+\definecolor{keywordcolor}{rgb}{0.0,0.2,0.6}
+\definecolor{commentcolor}{rgb}{0.3,0.5,0.3}
+\definecolor{stringcolor}{rgb}{0.5,0.1,0.1}
+\definecolor{bgcolor}{rgb}{0.95,0.95,0.95}
+
+% Haskell listing style
+\lstdefinelanguage{Haskell}{
+  morekeywords={
+    case,class,data,default,deriving,do,else,if,import,in,infix,infixl,
+    infixr,instance,let,module,newtype,of,then,type,where,forall
+  },
+  sensitive=true,
+  morecomment=[l]--,
+  morecomment=[n]{\{-}{-\}},
+  morestring=[b]",
+}
+
+\lstdefinestyle{haskellstyle}{
+  language=Haskell,
+  basicstyle=\ttfamily\small,
+  keywordstyle=\color{keywordcolor}\bfseries,
+  commentstyle=\color{commentcolor}\itshape,
+  stringstyle=\color{stringcolor},
+  backgroundcolor=\color{bgcolor},
+  showstringspaces=false,
+  numbers=left,
+  numberstyle=\tiny,
+  numbersep=5pt,
+  frame=single,
+  breaklines=true,
+  captionpos=b
+}
 
 \newcommand{\la}{\lambda}
 \newcommand{\La}{\mathbf{\Lambda}}
