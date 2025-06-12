@@ -6,6 +6,8 @@
 \usepackage{mathtools}
 \usepackage{stmaryrd}
 \usepackage{mathpartir} % for inference rules
+\usepackage{tikz}
+\usetikzlibrary{positioning, arrows.meta} % REQUIRED for 'right=of' and arrow styles
 
 \newcommand{\subst}[2]{[#1 := #2]}    % Substitution
 \newcommand{\step}{\curly} % One-step beta reduction
@@ -20,14 +22,26 @@
 
 \begin{document}
 
-\chapter{Introduction}
-
-\orange{The flow of the document, what will be covered (UTLC, STLC, DTLC, Curry-Howard, LCCCs...). The aim of the document. Things will be formal but for key constructions that are deemed to be of practical use, a simple implementation will be given, usually in haskell, lean or similar. }
+\magenta{
+  The flow of the document, what will be covered (UTLC, STLC, DTLC, Curry-Howard, LCCCs...).
+  The aim of the document. Things will be formal but for key constructions that are deemed to be of practical use, a simple implementation will be given, usually in haskell, lean or similar. Implementations given will not necessarly be optimal since they are meant for educational purpuse
+}
 
 \chapter{\lCalc}
 
-\magenta{Add some introduction. Computation and meaning, extensional vs intensional, operational vs denotational. historical note}
+In the early 20th century, mathematicians such as Bertrand Russell, David Hilbert, and Kurt Gödel were trying to set complete, consistent, and decidable foundations for mathematics. Within this context, Alonzo Church, in he's effort to formalize the notion of effective computability, he introduced a minimal symbolic language based upon function abstraction and function application, this system is now called \lcalc.
 
+In 1936, Church used lambda calculus to address Hilbert’s Entscheidungsproblem—whether a mechanical method could determine the truth of any first-order logic statement. He proved no such algorithm exists, establishing the undecidability of first-order logic.
+
+One of the nuances formalized by the \lcalc \ is the disctinction between extensional and intensional equality. The extensional approach to equivalence states that two functions are equivalent if they share input output pairs for every posible input. It's intensional counterpart extends this notion of equality by requiring that the procedures that compute these pairs share complexity i.e. they take the same steps toward yielding a result. \footnote{
+  Let \( p \) be a sufficiently large prime, and let \( f, g : \mathbb{Z}_p \to \mathbb{Z}_p \) be defined by \( f(x) = x^2 \) and \( g(x) = \log_a(a^{x+2}) \), where \( a \in \mathbb{Z}_p^\times \) is a fixed primitive root. Although \( f \) and \( g \) are extensionally equal, i.e., they yield the same output for all inputs in \( \mathbb{Z}_p \), they are intensionally distinct. The function \( f \) performs a simple squaring operation, while \( g \) requires evaluating a discrete logarithm, intractable in general. \magenta{\ref{}[Pedro Bonilla]
+}
+}
+
+Languages like LISP, Haskell, Erlang and others share the \lcalc \ as it's theoretical foundation. It has has established itself as the backbone of functional programming. The introduction of type systems into the \lcalc \ has allowed us to computer-verify mathematical proofs and develop programs that are correct by construction. \footnote{Principles of the \lcalc \ and Type Theory underlie every computer assisted verification tool as well as kitchen table programming languages like Java or C.}
+
+
+\newpage
 \section{\centering Untyped \lCalc}
 In order to get acquainted with the \lcalc, let us develop a simple example to familiarize ourselves before we begin with a more formal approach to this discipline. Consider the function $f(x) = x + 1$, the most straightforward way to express this using \lcalc \ would be $(\la x . x + 1 )$, where the lambda denotes that $x$ is being captured and used as a parameter to perform some computation \footnote{this is an e.g., $(\la x . x + 1 )$ is not a valid lambda term, see Definition \ref{def:lambda-terms-2}.}. Evaluating $f(2)$ using this newly created lambda term would look like this: $(\la x . x + 1)(2) \curly (2 + 1) \curly 3$. This process of reducing a $\la$-expression is referred to as \bred, it will be covered formally later in the chapter.
 \begin{definition} The set of lambda terms \( \La \) is defined inductively as follows:
@@ -111,6 +125,9 @@ Having defined the language of the \lcalc, we move on to the mechanics of comput
                                         &= \{z\}
   \end{align*}
   Of course, $z$ is the only free variable in the expression as it is the only variable that is not captured by some $\la$-abstraction.
+  \begin{lstlisting}[style=haskellstyle,caption={asdasd}]
+
+  \end{lstlisting}
 \end{example}
 \begin{definition}
   A term $M \in \La$ is closed if and only if $\FV M = \emptyset$, closed lambda terms are often referred to as combinators. $\Lambda^0$ is the set of all closed lambda terms.
@@ -123,6 +140,9 @@ Since every lambda term is made up of other smaller lambda terms, it is only nat
     &\Sub {\la x . M} = \Sub M  \cup \{\la x. M\}
   \end{align*}
   Where $x \in \Vset$ and $M, N \in \La $.
+  \begin{lstlisting}[style=haskellstyle,caption={asdasdasd}]
+
+  \end{lstlisting}
 \end{definition}
 \begin{remark}
   Let \( \preceq \) be the subterm relation on \lterms, defined by
@@ -153,8 +173,12 @@ Since every lambda term is made up of other smaller lambda terms, it is only nat
     \end{aligned}
   \]
   where \( z \notin \FV { M } \cup \FV { N } \).
+  \begin{lstlisting}[style=haskellstyle,caption={asdasdasd}]
+
+  \end{lstlisting}
 \end{definition}
 \magenta{\begin{itemize}
+  \item De Bruijin
   \item Add insight and intuition upon the formal definition
   \item Add some haskell implementation details
   \item Maybe add code that generates \aequivlt \ terms
@@ -274,8 +298,7 @@ We begin defining $ \mathbb{N} $ for no particular reason \orange{other than the
 \item (Injectivity) \( \forall x, y \in \NAT, s(x) = s(y) \Rightarrow x = y \)
 \item (Induction) \( P(0) \land \forall ( P(x) \Rightarrow P(s(x))) \Rightarrow \forall x,  P (x) \)
 \end{itemize}
-\magenta{Maybe include here a graph to make the intuition behind the axioms explicit}
-
+\magenta{Maybe include here a graph to make the intuition behind the axioms}
 Say for instance we mean to represent $ 3 $ using Peano notation, we would come up with $ s(s(s(0))) $. To add two numbers one can just use the set of rules:
 \[
   \begin{cases}
@@ -290,7 +313,6 @@ A recursive rule that performs the addition, and a base case to stop the recursi
     \texttt{0} &\equiv \la f.\la x. x \\
     \texttt{SUCC} &\equiv \la n. \la f. \la x . f ( n f x )
   \end{align*}
-
 \end{definition}
 \begin{remark}
   The church numerals have been defined similarly to the peano axioms, that is, by bringing into existance an initial element and using the succesor function to define the rest of them. Let us apply \texttt{SUCC} a few times to illustrate:
@@ -343,7 +365,7 @@ The reality of the \IF \ is that it is just a combinator that happens to behave 
       \curly^* \ & \FALSE\ M\, N \curly N
     \end{aligned}
   \]
-  So the \IF \ just combines $b, t, e$ in such a way that whenever b is a church encoded boolean either $t$ or $e$ is dropped depending on the truth value of $b$. See Remark \ref{rem:true-false}. From this example we extract that $ \la x . x $ is equivalent to \IF \ it terms of behaviour. Thus, we could interchangeably define $ \IF \equiv \la x . x $.
+  So the \IF \ just combines $b, t, e$ in such a way that whenever b is a church encoded boolean either $t$ or $e$ is dropped depending on the truth value of $b$. See Remark \ref{rem:true-false}. From this example we extract that $ \la x . x $ is equivalent to \IF \ it terms of behaviour. Thus, we could use $ \IF \equiv \la x . x $ interchangeably.
 \end{example}
 \begin{remark}
   Using the \IF \ we can implement an universal set of logic gates:
