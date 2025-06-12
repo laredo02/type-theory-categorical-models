@@ -1,5 +1,21 @@
 \documentclass[12pt]{book}
 
+\usepackage{stmaryrd}  % for \mapstochar
+\usepackage{bussproofs} % inference rules
+\usepackage{amsmath,amssymb}
+\usepackage{mathtools}
+\usepackage{stmaryrd}
+\usepackage{mathpartir} % for inference rules
+
+\newcommand{\subst}[2]{[#1 := #2]}    % Substitution
+\newcommand{\step}{\curly} % One-step beta reduction
+\newcommand{\lam}[2]{\lambda #1.\,#2} % Lambda abstraction
+
+\newcommand{\app}[2]{#1.\,#2} % Lambda abstraction
+\newcommand{\abs}[2]{\la #1.\,#2} % Lambda abstraction
+\newcommand{\curlysym}{\mathrel{\leftrightarrow}_\beta}
+
+
 \input{packages.tex}
 
 \begin{document}
@@ -115,7 +131,7 @@ Since every lambda term is made up of other smaller lambda terms, it is only nat
   \]
   \( \preceq \) is a partial order relation. This statement is follows intuitively from the definition, it can be proven using induction on the derivation tree.
 \end{remark}
-\begin{definition} A term $ S \in \Sub M, \ M \in \Lambda$ is said to be proper if $S \neq M$. $\Sub{M} \setminus \{M\}$ would be the set of proper subterms.
+\begin{definition} A term $ S \in \Sub M, \ M \in \La$ is said to be proper if $S \neq M$. $\Sub{M} \setminus \{M\}$ would be the set of proper subterms.
 \end{definition}
 \begin{definition} Let \( M = \lambda x. N \) be a \lterm:
   \begin{itemize}
@@ -138,10 +154,91 @@ Since every lambda term is made up of other smaller lambda terms, it is only nat
   \]
   where \( z \notin \FV { M } \cup \FV { N } \).
 \end{definition}
+\magenta{\begin{itemize}
+  \item Add insight and intuition upon the formal definition
+  \item Add some haskell implementation details
+  \item Maybe add code that generates \aequivlt \ terms
+  \end{itemize}}
+\begin{definition} Two lambda terms \( M, N \in \La \) are \aequivlt, written \( M =_\alpha N \), if they are structurally identical except for the names of bound variables.
+  Formally:
+  \[
+    \lam{x}{M} =_\alpha \lam{y}{M\subst{x}{y}}
+    % \quad \text{if } y \notin \FV { M } 
+  \]
+  Alpha-equivalence posseses the following properties:
+  \[
+    \begin{aligned}
+      M &=_\alpha M \\
+      M &=_\alpha N \Rightarrow N =_\alpha M \\ 
+      M &=_\alpha N \text{ and } N =_\alpha P \Rightarrow M =_\alpha P
+    \end{aligned}
+  \]
+  And thus, is an equivalence relation.
+\end{definition}
+\magenta{
+  \begin{itemize}
+    \item Examples \begin{example}\end{example} ... \aequiv \ relations
+    \item This relation is the most horizontal of the ones that show up in the text. By this I mean it just relates terms with equivalent terms at the same level in the \bred \ tree. (find a way to say this without having introduced \bred \ yet)
+  \end{itemize}
+}
+\begin{definition} Single-step \bred \ defined using inference rules: \orange{(remove vertical space below)}
+  \begin{center}
+    \[
+      \begin{aligned}
+        &\inferrule*[right=\textsc{Beta}]
+          { }
+          { (\lam{x}{M})\,N \step M\subst{x}{N} } \\[2ex]
+        &\inferrule*[right=\textsc{AppL}]
+          { M_1 \step M_1' }
+          { M_1\,M_2 \step M_1'\,M_2 }
+      \end{aligned}
+      \quad
+      \begin{aligned}
+        &\inferrule*[right=\textsc{Abs}]
+          { M \step M' }
+          { \lam{x}{M} \step \lam{x}{M'} } \\[2ex]
+        &\inferrule*[right=\textsc{AppR}]
+          { M_2 \step M_2' }
+          { M_1\,M_2 \step M_1\,M_2' }
+      \end{aligned}
+    \]
+  \end{center}
+  where \( M, N \in \La \).
+  For those not so familiar with inference rules here is an alternative definition where $L$ also belongs to $\La$:
+\end{definition}
+\begin{itemize}
+  \item \( (\lam{x}{M})\,N \step M\subst{x}{N} \)
+  \item If $M \step N$, then: \( M\,L \step N\,L; L\,M \step L\,N; \lam{x}{M} \step \lam{x}{N} \)
+\end{itemize}
+\magenta{
+  Here, The Beta rule abstracts the concept of reduction, that encapsulates the idea of computation within the \lcalc. The reason for this is that Beta reduces an application of an abstraction and removes the abstraction, hence simplifying the term. 
+}
 
-\magenta{Beta reduction}
+Single \bred s can be applied succesively, which induces the following definition
 
-\newpage
+\begin{definition} Zero or more step \bred, or as in the literature, \emph{reflexive-transitive-closure}:
+
+\smallskip
+We write $M \step^* N$ if and only if there exists a sequence of one-step $\beta$-reductions starting from $M$ and ending at $N$. \footnote{The convention in the literature is to use $\rightarrow_\beta$ for \bred s $\twoheadrightarrow_\beta$ for multi-step \bred s. I prefer to use $\curly$ and $\curly^n$ since this allows me to use the superscript to note the number of steps in the process \bred \ e.g. $ \FALSE \, M \, N \curly^2 $ N. Instead of $\curly^n$ I use $\curly^*$.}
+\[
+  M \equiv M_0 \step M_1 \step M_2 \step \cdots \step M_{n-1} \step M_n \equiv N
+\]
+That is, there exists an integer $n \geq 0$ and a sequence of terms $M_0, M_1, \dots, M_n$ such that: $ M_0 \equiv M $ and $ M_n \equiv N $ for all $ i $ with $ 0 \leq i < n $, we have $ M_i \step M_{i+1} $.
+\end{definition}
+
+\magenta{ This process of b reducing a term leads raises the question of whether all terms can be reduced indefinitly or whether all terms have some kind of normal form that cant be reduced. (obv not since variables in V cant be reduced), so we are left with: Do all terms reduce to a final form where the only possible bred is M bred M? See recursion Y combinator...}
+
+\begin{definition} \bequiv \ relation \magenta{add more detail and complete the definition} \\
+\[
+  M =_\beta N \iff M \step^* N \lor N \step^* M
+\]
+Put in other words:
+\[
+    M =_\beta N \iff \exists M_0, \dots, M_n \text{ s.t. } M \equiv M_0 \leftrightarrow_\beta M_1 \leftrightarrow_\beta \cdots \leftrightarrow_\beta M_n \equiv N
+\]
+where $ \leftrightarrow_\beta $ denotes a bidirectional $\curly$.
+\end{definition}
+
 Having covered \bred, we now explore a key aspect of the \lcalc, in the jargon referred to as first-class citizenship, or more formally high-order. When we use high-order to refer to a $\la$-term, we refer to the fact that both functions and arguments are treated indistiguishably, the example below sheds some light on the matter:
 \begin{align*}
   \overbrace { (\lambda f . \lambda y . f f y) }^{A} \overbrace{ (\lambda x . x + 1) }^{B} \overbrace{(2)}^{C}
@@ -154,6 +251,16 @@ Having covered \bred, we now explore a key aspect of the \lcalc, in the jargon r
 Taking a closer look, $A$, applies $f$ twice to $x$, as a consequence, $B$ is being applied twice to $C$. And so, very easily, we have implemented the $ x + 2 $ function via a sequential application of $x + 1$ to $C$. One can intuitively apreciate the computational expresivenes this brings with it, and how the sintactic-semantic homogeneity sets the \lcalc \ apart from the classical set-theoretic approach to functions.
 
 \magenta{normalization + church rosser i.e. confluence}
+
+
+
+
+
+
+
+
+
+
 
 \subsection{\centering Some Important Constructs}
 
@@ -236,7 +343,7 @@ The reality of the \IF \ is that it is just a combinator that happens to behave 
       \curly^* \ & \FALSE\ M\, N \curly N
     \end{aligned}
   \]
-  So the \IF \ just combines $b, t, e$ in such a way that whenever b is a church encoded boolean either $t$ or $e$ is dropped depending on the truth value of $b$. See Remark \ref{rem:true-false}.
+  So the \IF \ just combines $b, t, e$ in such a way that whenever b is a church encoded boolean either $t$ or $e$ is dropped depending on the truth value of $b$. See Remark \ref{rem:true-false}. From this example we extract that $ \la x . x $ is equivalent to \IF \ it terms of behaviour. Thus, we could interchangeably define $ \IF \equiv \la x . x $.
 \end{example}
 \begin{remark}
   Using the \IF \ we can implement an universal set of logic gates:
@@ -265,7 +372,6 @@ Using pairs, we now can define linear lists, we can achieve this using either le
 \begin{center}
   \[
     \begin{aligned}
-      \boxed{
       \begin{forest}
         [\rotatebox{60}{\texttt{\ldots}}
         [\PAIR
@@ -278,11 +384,11 @@ Using pairs, we now can define linear lists, we can achieve this using either le
         [\texttt{ELEM}]
         ]
       \end{forest}
-      }
     \end{aligned}
-    \quad
+    \hspace{1cm}
+    \textit{or}
+    \hspace{1cm}
     \begin{aligned}
-      \boxed{
       \begin{forest}
         [\rotatebox{-60}{\texttt{\ldots}}
         [\texttt{ELEM}]
@@ -293,7 +399,6 @@ Using pairs, we now can define linear lists, we can achieve this using either le
         [\NIL]
         ]]]
       \end{forest}
-      }
     \end{aligned}
   \]
 \end{center}
@@ -324,6 +429,47 @@ that binds a new element $h$ to to an pre-existing list or to \NIL.
 
 
 
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 \newpage
 \centering{\blue{left blank}}
 
@@ -339,7 +485,6 @@ that binds a new element $h$ to to an pre-existing list or to \NIL.
 
 
 
-\newpage
 
 \textbf{Recursion:}
 \begin{align*}
@@ -378,4 +523,5 @@ Having grasped the untyped lambda calculus's Turing completeness and ability to 
 \section*{\centering A Primer on Logic}
 \magenta{build up to first order logic}
 \end{document}
+
 
