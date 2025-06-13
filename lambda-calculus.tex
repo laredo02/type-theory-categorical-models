@@ -38,13 +38,13 @@ One of the nuances formalized by the \lcalc \ is the disctinction between extens
 }
 }
 
-Languages like LISP, Haskell, Erlang and others share the \lcalc \ as it's theoretical foundation. It has has established itself as the backbone of functional programming. The introduction of type systems into the \lcalc \ has allowed us to computer-verify mathematical proofs and develop programs that are correct by construction. \footnote{Principles of the \lcalc \ and Type Theory underlie every computer assisted verification tool as well as kitchen table programming languages like Java or C.}
+Languages like LISP, Haskell, Erlang and others share the \lcalc \ as it's theoretical foundation. It has has established itself as the backbone of functional programming. The introduction of type systems into the \lcalc \ has allowed us to computer-verify mathematical proofs and develop programs that are correct by construction. \footnote{\orange{Principles of the \lcalc \ and Type Theory underlie every computer assisted verification tool as well as kitchen table programming languages like Java or C.}}
 
 
 \newpage
 \section{\centering Untyped \lCalc}
-In order to get acquainted with the \lcalc, let us develop a simple example to familiarize ourselves before we begin with a more formal approach to this discipline. Consider the function $f(x) = x + 1$, the most straightforward way to express this using \lcalc \ would be $(\la x . x + 1 )$, where the lambda denotes that $x$ is being captured and used as a parameter to perform some computation \footnote{this is an e.g., $(\la x . x + 1 )$ is not a valid lambda term, see Definition \ref{def:lambda-terms-2}.}. Evaluating $f(2)$ using this newly created lambda term would look like this: $(\la x . x + 1)(2) \curly (2 + 1) \curly 3$. This process of reducing a $\la$-expression is referred to as \bred, it will be covered formally later in the chapter.
-\begin{definition} The set of lambda terms \( \La \) is defined inductively as follows:
+In order to get acquainted with the \lcalc, let us develop a simple example to familiarize ourselves before we begin with a more formal approach to this discipline. Consider the function $f(x) = x + 1$, the most straightforward way to express this using \lcalc \ would be $(\la x . x + 1 )$, where the lambda denotes that $x$ is being captured and used as a parameter to perform some computation\footnote{this is an e.g., $(\la x . x + 1 )$ is not a valid lambda term, see Definition \ref{def:lambda-terms-2}.}. Evaluating $f(2)$ using this newly created lambda term would look like this: $(\la x . x + 1)(2) \curly (2 + 1) \curly 3$. This process of reducing a $\la$-expression is referred to as \bred, it will be covered formally later in the chapter \ref{}[def:beta-red].
+\begin{definition} The set of all lambda terms \( \La \) is defined inductively as follows:
   \label{def:lambda-terms-1}
   \begin{itemize}
   \item (Variable) If \( x \in \Vset \), then \( x \in \La \).  
@@ -53,7 +53,9 @@ In order to get acquainted with the \lcalc, let us develop a simple example to f
   \end{itemize}
   Where $\Vset = \{x, y, z, ... \}$ represents a countably infinite set of variable names.
 \end{definition}
-The key takeaway of this definition is that abstraction and application together, encapsulate the meaning of function in a way that when combined with \bred \ \ref{} allows us to perform computation.
+The key takeaway of this definition is that abstraction and application together, when combined with \bred \ \ref{}[def:beta-red], enable computation—thus encapsulating the meaning of function in a way that is abstract yet useful
+
+
 
 Since we are dealing with a formal language, it is in our benefit to introduce a few other objects with the aim of defining a grammar to generate the set $\La$:
 \begin{itemize}
@@ -62,7 +64,7 @@ Since we are dealing with a formal language, it is in our benefit to introduce a
 \item \( \Sigma^* \) denotes the set of all finite strings over \( \Sigma \), \( \varepsilon \in \Sigma^* \)
 \item A language \( L \) over an alphabet \( \Sigma \) is a subset of \( \Sigma^* \)
 \end{itemize}
-Our aim now, to generate the set $\La$,  to do this, we will make use of a grammar. When dealing with grammars that define programming languages i.e. context-free grammars, Backus-Naur Form is the way to go:
+Our aim now, to generate the set $\La$,  to do this, we will make use of a grammar. When dealing with grammars that define programming languages i.e. context-free grammars, Backus-Naur Form (BNF) \ref{}[BNF] is the way to go:
 \begin{itemize}
 \item Nonterminals are enclosed in angle brackets (e.g. \texttt{<expr>})
 \item Terminals are written literally (e.g. \texttt{"$\lambda$"}, \texttt{"."}, $x$)
@@ -71,24 +73,24 @@ Our aim now, to generate the set $\La$,  to do this, we will make use of a gramm
 \end{itemize}
 Thus, to define the language for natural numbers in decimal notation:
 \begin{align*}
-  \texttt{<digit>} &\;\texttt{::=}\; \texttt{"0"} \;|\; \texttt{"1"} \;|\; \texttt{"2"} \;|\; \texttt{"3"} \;|\; \texttt{"4"} \;|\; \texttt{"5"} \;|\; \texttt{"6"} \;|\; \texttt{"7"} \;|\; \texttt{"8"} \;|\; \texttt{"9"} \\
+  \texttt{<digit>} &\;\texttt{::=}\; \texttt{"0"} \;\texttt{|}\; \texttt{"1"} \;\texttt{|}\; \texttt{"2"} \;\texttt{|}\; \texttt{"3"} \;\texttt{|}\; \texttt{"4"} \;\texttt{|}\; \texttt{"5"} \;\texttt{|}\; \texttt{"6"} \;\texttt{|}\; \texttt{"7"} \;\texttt{|}\; \texttt{"8"} \;\texttt{|}\; \texttt{"9"} \\
   \texttt{<number>} &\;\texttt{::=}\; \texttt{<digit>} \;|\; \texttt{<digit>} \ \texttt{<number>}
 \end{align*}
 \begin{definition} Taking advantage of BNF notation, an alternative definition for $\La$ (\ref{def:lambda-terms-1}):
   \begin{align*}
     \texttt{<term>} &\;\texttt{::=}\; \texttt{<variable>} \\
-                    &\;|\; \texttt{"$\la$"}\ \texttt{<variable>}\ \texttt{"."}\ \texttt{<term>} \\
-                    &\;|\; \texttt{"("}\ \texttt{<term>}\ \texttt{<term>}\ \texttt{")"} \\
-    \texttt{<variable>} &\;\texttt{::}\in V
+                    &\;\texttt{|}\; \texttt{"$\la$"}\ \texttt{<variable>}\ \texttt{"."}\ \texttt{<term>} \\
+                    &\;\texttt{|}\; \texttt{"("}\ \texttt{<term>}\ \texttt{<term>}\ \texttt{")"} \\
+    \texttt{<variable>} &\;\texttt{::}\in \Vset
   \end{align*}
   \label{def:lambda-terms-2}
   where \( \Sigma = \{ \la, ., (, )\} \cup \Vset \) and \( \La \subset \Sigma^* \). Through use of algebraic types \footnote{Algebraic Data Types are inductively defined types built from sums (either this or that) of products (this and that). They let you define structured data with multiple forms and support safe, exhaustive pattern matching. }, this grammar can be implemented in Haskell:
   \begin{lstlisting}[style=haskellstyle,caption={Grammar implementation of the \lcalc \ language using Haskell's algebraic types}]
-data LambdaTerm = Var String
-                | App LambdaTerm LambdaTerm
-                | Abs String LambdaTerm
-{- variable names are implemented using strings -}
-  \end{lstlisting}
+data Term = Var String
+          | App Term Term
+          | Abs String Term
+\end{lstlisting}
+
 \end{definition}
 \begin{remark}
   From the definition above we extract that \( \lambda x . x + 1 \notin \La \), given this circumstance, the need to find an accurate representation for numbers within this definition arises. See Definition \ref{def:church-naturals}
@@ -103,7 +105,7 @@ data LambdaTerm = Var String
 Abs "x" (App (Var "x") (Var "x"))
   \end{lstlisting}
 \end{example}
-As a convention to avoid notational cluttering, the outermost parenthesis can be omitted e.g. $ ( \la x.x ) $ can be read as $ \la x.x $. Also, application is left-associative  and binds tighter than abstraction, so $M N P$ is parsed as $(M N) P$ and $\la x . M N$ means $\la x . (M N)$, not $(\la x . M) N$. Likewise, abstraction is right-associative e.g. $\la x . \la y . M$ is $\la x . (\la y . M)$ and binds more weakly than application. All these are just to keep notation straight-forward, the formal definition does not leave precedence under-specified thanks to parenthesis.
+As a convention to avoid notational cluttering, the outermost parenthesis can be omitted e.g. $ ( \la x.x ) $ can be read as $ \la x.x $. Also, application is left-associative  and binds tighter than abstraction, so $M N P$ is parsed as $(M N) P$ and $\la x . M N$ means $\la x . (M N)$, not $(\la x . M) N$. Likewise, abstraction is right-associative e.g. $\la x . \la y . M$ is $\la x . (\la y . M)$ and binds more weakly than application. All these are just to keep notation straight-forward, the formal definition does not leave precedence under-specified thanks to parenthesis. Those interested in the Haskell implementation need not worry, as Haskell enforces an explicit order on constructors.
 \subsection{\centering Equivalence of terms}
 Having defined the language of the \lcalc, we move on to the mechanics of computation. To this end, several equivalence relations among terms will be defined. Let us begin by introducing the set that contains all variables that are not bound to the term via an abstraction.
 \begin{definition} Given $T \in \La $, $\functionfont{FV} : \La \to \mathcal{P}(\Vset) $ outputs the set of free variables for $T$:
@@ -113,6 +115,12 @@ Having defined the language of the \lcalc, we move on to the mechanics of comput
     & \FV {\lambda x . M} = \FV M \setminus \{x\}
   \end{align*}
   Where $ x \in \Vset $ and $ M, N \in \La $, and $\mathcal{P}$ denotes the power set.
+  \begin{lstlisting}[style=haskellstyle,caption={Implementation of FVV in Haskell.}]
+FV :: Term -> Set String
+FV (Var x)     = Set.singleton x
+FV (App t1 t2) = Set.union (FV t1) (FV t2)
+FV (Abs x t)   = Set.delete x (FV t)
+  \end{lstlisting}
 \end{definition}
 \begin{example}
   Compute the free variables of $\lambda x . \lambda y . y x z$:
@@ -125,23 +133,23 @@ Having defined the language of the \lcalc, we move on to the mechanics of comput
                                         &= \{z\}
   \end{align*}
   Of course, $z$ is the only free variable in the expression as it is the only variable that is not captured by some $\la$-abstraction.
-  \begin{lstlisting}[style=haskellstyle,caption={asdasd}]
-
-  \end{lstlisting}
 \end{example}
 \begin{definition}
   A term $M \in \La$ is closed if and only if $\FV M = \emptyset$, closed lambda terms are often referred to as combinators. $\Lambda^0$ is the set of all closed lambda terms.
 \end{definition}
 Since every lambda term is made up of other smaller lambda terms, it is only natural to define the set that contains all subterms of a given term:
-\begin{definition} Given $T \in \La$, $\functionfont{Sub} : \La \to \mathcal{P}(\Vset)$ maps terms to the set of it's subterms.
+\begin{definition} Given $T \in \La$, $\functionfont{Sub} : \La \to \mathcal{P}(\Vset)$ maps a term to the set of it's subterms.
   \begin{align*}
     &\Sub x = \{x\} \\
     &\Sub {MN} = \Sub M  \cup \Sub N \cup \{MN\} \\
     &\Sub {\la x . M} = \Sub M  \cup \{\la x. M\}
   \end{align*}
   Where $x \in \Vset$ and $M, N \in \La $.
-  \begin{lstlisting}[style=haskellstyle,caption={asdasdasd}]
-
+  \begin{lstlisting}[style=haskellstyle,caption={Haskell implementation of Subb.}]
+Sub :: Term -> Set Term
+Sub v@(Var _)     = Set.singleton v
+Sub a@(App t1 t2) = Set.insert a (Set.union (Sub t1) (Sub t2))
+Sub a@(Abs _ t)   = Set.insert a (Sub t)
   \end{lstlisting}
 \end{definition}
 \begin{remark}
@@ -441,6 +449,46 @@ that binds a new element $h$ to to an pre-existing list or to \NIL.
 
 
 
+\subsection{\centering Fixed Point Combinators and Recursion}
+\orange{
+This process of b reducing a term leads raises the question of whether all terms can be reduced indefinitly or whether all terms have some kind of normal form that cant be reduced. (obv not since variables in V cant be reduced), so we are left with: Do all terms reduce to a final form where the only possible bred is M bred M? See recursion Y combinator...}
+
+\magenta{Improve this whole section}
+
+The most straight forward way to test this, is to check whether there exists some term that reduces to itself:
+\[
+  M \curly^* N \curly^* M
+\]
+It turns out it does exist, and that we can build it using the tools of the \lcalc:
+\[
+  (\la x . \, x \, x) (\la x . \, x \, x)
+\]
+Let us inspect what goes on as we keep $\beta$-reducing this term:
+\[
+  (\la x . \, x \, x) (\la x . \, x \, x) \curly (\la x . \, x \, x) (\la x . \, x \, x) \curly^* (\la x . \, x \, x) (\la x . \, x \, x)  
+\]
+
+
+
+Y combinator.
+\[
+  Y \triangleq \lambda f.\, (\lambda x.\, f\, (x\, x))\, (\lambda x.\, f\, (x\, x))
+\]
+Turing combinator
+\[
+  \Theta \triangleq 
+  (\lambda x\, f.\, f\, (x\, x\, f))\, (\lambda x\, f.\, f\, (x\, x\, f))
+\]
+Z combinator
+\[
+  Z \triangleq \lambda f.\, 
+  (\lambda x.\, f\, (\lambda v.\, x\, x\, v))\, 
+  (\lambda x.\, f\, (\lambda v.\, x\, x\, v))
+\]
+
+
+
+\magenta{Turing completeness of the \lcalc}
 
 
 
@@ -512,23 +560,10 @@ that binds a new element $h$ to to an pre-existing list or to \NIL.
 \begin{align*}
   \texttt{Y} &\equiv \lambda f.(\lambda x. f\,(x\,x))\,(\lambda x. f\,(x\,x))
 \end{align*}
-\subsection{\centering Fixed Point Combinators and Recursion}
-Y combinator.
-\[
-  Y \triangleq \lambda f.\, (\lambda x.\, f\, (x\, x))\, (\lambda x.\, f\, (x\, x))
-\]
-Turing combinator
-\[
-  \Theta \triangleq 
-  (\lambda x\, f.\, f\, (x\, x\, f))\, (\lambda x\, f.\, f\, (x\, x\, f))
-\]
-Z combinator
-\[
-  Z \triangleq \lambda f.\, 
-  (\lambda x.\, f\, (\lambda v.\, x\, x\, v))\, 
-  (\lambda x.\, f\, (\lambda v.\, x\, x\, v))
-\]
-\magenta{Turing completeness of the \lcalc} 
+
+
+
+
 \section{\centering Simply Typed \lCalc}
 \magenta{rewrite this pls $==>$}
 
