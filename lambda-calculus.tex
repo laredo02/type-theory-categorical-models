@@ -8,6 +8,18 @@
 \usepackage{mathpartir} % for inference rules
 \usepackage{tikz}
 \usetikzlibrary{positioning, arrows.meta} % REQUIRED for 'right=of' and arrow styles
+\usepackage[
+  colorlinks=true,
+  linkcolor=refcolor,    % Use your custom reddish-orange
+  citecolor=refcolor,
+  urlcolor=refcolor,
+  pdfborder={0 0 0}      % Removes the box around links
+]{hyperref}
+
+\usepackage{xcolor}
+\usepackage{etoolbox}
+\definecolor{refcolor}{RGB}{70, 40, 100}  % Adjust RGB as needed for reddish-orange
+\newcommand{\myref}[1]{\textcolor{refcolor}{\textbf{[\hyperref[#1]{\ref*{#1}}}]}}
 
 \newcommand{\subst}[2]{[#1 := #2]}    % Substitution
 \newcommand{\step}{\curly} % One-step beta reduction
@@ -32,21 +44,22 @@
 
 \chapter{\lCalc}
 
-In the early 20th century, mathematicians such as Bertrand Russell, David Hilbert, and Kurt Gödel were trying to set complete, consistent, and decidable foundations for mathematics. Within this context, Alonzo Church, in he's effort to formalize the notion of effective computability, he introduced a minimal symbolic language based upon function abstraction and function application, this system is now called \lcalc.
+In the early 20th century, mathematicians such as Bertrand Russell, David Hilbert, and Kurt Gödel were trying to set complete, consistent, and decidable foundations for mathematics. Within this context, Alonzo Church, in he's effort to formalize the notion of  computability, introduced a minimal symbolic language \myref{def:lambda-terms-1} based upon function abstraction and function application, this system is now called \lcalc.
 
 In 1936, Church used lambda calculus to address Hilbert’s Entscheidungsproblem—whether a mechanical method could determine the truth of any first-order logic statement. He proved no such algorithm exists, establishing the undecidability of first-order logic.
 
-One of the nuances formalized by the \lcalc \ is the disctinction between extensional and intensional equality. The extensional approach to equivalence states that two functions are equivalent if they share input output pairs for every posible input. It's intensional counterpart extends this notion of equality by requiring that the procedures that compute these pairs share complexity i.e. they take the same steps toward yielding a result. \footnote{
+One of the nuances formalized by the \lcalc \ is the disctinction between extensional and intensional equality. The extensional approach to equivalence states that two functions are equivalent if they share input output pairs for every posible input. It's intensional counterpart extends this notion of equality by requiring that the procedures that compute these pairs share complexity i.e. they take the same steps toward yielding a result.\footnote{
   Let \( p \) be a sufficiently large prime, and let \( f, g : \mathbb{Z}_p \to \mathbb{Z}_p \) be defined by \( f(x) = x^2 \) and \( g(x) = \log_a(a^{x+2}) \), where \( a \in \mathbb{Z}_p^\times \) is a fixed primitive root. Although \( f \) and \( g \) are extensionally equal, i.e., they yield the same output for all inputs in \( \mathbb{Z}_p \), they are intensionally distinct. The function \( f \) performs a simple squaring operation, while \( g \) requires evaluating a discrete logarithm, intractable in general. \magenta{\ref{}[Pedro Bonilla]
 }
 }
 
-Languages like LISP, Haskell, Erlang and others share the \lcalc \ as it's theoretical foundation. It has has established itself as the backbone of functional programming. The introduction of type systems into the \lcalc \ has allowed us to computer-verify mathematical proofs and develop programs that are correct by construction. \footnote{\orange{Principles of the \lcalc \ and Type Theory underlie every computer assisted verification tool as well as kitchen table programming languages like Java or C.}}
+Languages like LISP, Haskell, Erlang and others share the \lcalc \ as it's theoretical foundation. It has has established itself as the backbone of functional programming. The introduction of type systems into the \lcalc \ has allowed us to computer-verify mathematical proofs and develop programs that are correct by construction.\footnote{Principles of the \lcalc \ and Type Theory underlie every computer assisted verification tool as well as proof assistants and kitchen table programming languages like C or Java.}
 
 
 \newpage
 \section{\centering Untyped \lCalc}
-In order to get acquainted with the \lcalc, let us develop a simple example to familiarize ourselves before we begin with a more formal approach to this discipline. Consider the function $f(x) = x + 1$, the most straightforward way to express this using \lcalc \ would be $(\la x . x + 1 )$, where the lambda denotes that $x$ is being captured and used as a parameter to perform some computation\footnote{this is an e.g., $(\la x . x + 1 )$ is not a valid lambda term, see Definition \ref{def:lambda-terms-2}.}. Evaluating $f(2)$ using this newly created lambda term would look like this: $(\la x . x + 1)(2) \curly (2 + 1) \curly 3$. This process of reducing a $\la$-expression is referred to as \bred, it will be covered formally later in the chapter \ref{}[def:beta-red].
+In order to get acquainted with the \lcalc, let us develop a simple example to familiarize ourselves before we begin with a more formal approach to this discipline. Consider the function $f(x) = x + 1$, the most straightforward way to express this using \lcalc \ would be $(\la x . x + 1 )$, where the lambda denotes that $x$ is being captured and used as a parameter to perform some computation\footnote{this is an e.g., $(\la x . x + 1 )$ is not a valid lambda term, see Definition \ref{def:lambda-terms-2}.}. Evaluating $f(2)$ using this newly created lambda term would look like this: $(\la x . x + 1)(2) \curly (2 + 1) \curly 3$. This process of reducing a $\la$-expression is referred to as \bred, it will be covered formally later in the chapter.
+
 \begin{definition} The set of all lambda terms \( \La \) is defined inductively as follows:
   \label{def:lambda-terms-1}
   \begin{itemize}
@@ -56,7 +69,7 @@ In order to get acquainted with the \lcalc, let us develop a simple example to f
   \end{itemize}
   Where $\Vset = \{x, y, z, ... \}$ represents a countably infinite set of variable names.
 \end{definition}
-The key takeaway of this definition is that abstraction and application together, when combined with \bred \ \ref{}[def:beta-red], enable computation—thus encapsulating the meaning of function in a way that is abstract yet useful
+The key takeaway of this definition is that abstraction and application together, when combined with \bred, enable computation—thus encapsulating the meaning of function in a way that is abstract yet useful.
 
 
 
@@ -79,14 +92,14 @@ Thus, to define the language for natural numbers in decimal notation:
   \texttt{<digit>} &\;\texttt{::=}\; \texttt{"0"} \;\texttt{|}\; \texttt{"1"} \;\texttt{|}\; \texttt{"2"} \;\texttt{|}\; \texttt{"3"} \;\texttt{|}\; \texttt{"4"} \;\texttt{|}\; \texttt{"5"} \;\texttt{|}\; \texttt{"6"} \;\texttt{|}\; \texttt{"7"} \;\texttt{|}\; \texttt{"8"} \;\texttt{|}\; \texttt{"9"} \\
   \texttt{<number>} &\;\texttt{::=}\; \texttt{<digit>} \;|\; \texttt{<digit>} \ \texttt{<number>}
 \end{align*}
-\begin{definition} Taking advantage of BNF notation, an alternative definition for $\La$ (\ref{def:lambda-terms-1}):
+\begin{definition} Taking advantage of BNF notation, an alternative definition for $\La$ \myref{def:lambda-terms-1}:
+  \label{def:lambda-terms-2}
   \begin{align*}
     \texttt{<term>} &\;\texttt{::=}\; \texttt{<variable>} \\
                     &\;\texttt{|}\; \texttt{"$\la$"}\ \texttt{<variable>}\ \texttt{"."}\ \texttt{<term>} \\
                     &\;\texttt{|}\; \texttt{"("}\ \texttt{<term>}\ \texttt{<term>}\ \texttt{")"} \\
     \texttt{<variable>} &\;\texttt{::}\in \Vset
   \end{align*}
-  \label{def:lambda-terms-2}
   where \( \Sigma = \{ \la, ., (, )\} \cup \Vset \) and \( \La \subset \Sigma^* \). Through use of algebraic types \footnote{Algebraic Data Types are inductively defined types built from sums (either this or that) of products (this and that). They let you define structured data with multiple forms and support safe, exhaustive pattern matching. }, this grammar can be implemented in Haskell:
   \begin{lstlisting}[style=haskellstyle,caption={Grammar implementation of the \lcalc \ language using Haskell's algebraic types}]
 data Term = Var String
@@ -217,6 +230,7 @@ Sub a@(Abs _ t)   = Set.insert a (Sub t)
   \end{itemize}
 }
 \begin{definition} Single-step \bred \ defined using inference rules: \orange{(remove vertical space below)}
+  \label{def:single-step-betared}
   \begin{center}
     \[
       \begin{aligned}
@@ -254,14 +268,13 @@ Single \bred s can be applied succesively, which induces the following definitio
 \begin{definition} Zero or more step \bred, or as in the literature, \emph{reflexive-transitive-closure}:
 
 \smallskip
-We write $M \step^* N$ if and only if there exists a sequence of one-step $\beta$-reductions starting from $M$ and ending at $N$. \footnote{The convention in the literature is to use $\rightarrow_\beta$ for \bred s $\twoheadrightarrow_\beta$ for multi-step \bred s. I prefer to use $\curly$ and $\curly^n$ since this allows me to use the superscript to note the number of steps in the process \bred \ e.g. $ \FALSE \, M \, N \curly^2 $ N. Instead of $\curly^n$ I use $\curly^*$.}
+We write $M \step^* N$ if and only if there exists a sequence of one-step $\beta$-reductions starting from $M$ and ending at $N$. \footnote{The convention in the literature is to use $\rightarrow_\beta$ for \bred s $\twoheadrightarrow_\beta$ for multi-step \bred s. I prefer to use $\curly$ and $\curly^n$ since this allows me to use the superscript to note the number of steps in the process \bred \ e.g. $ \FALSE \, M \, N \curly^2 $ N. Instead of $\curly^n$ I use $\curly^*$ whenever the number of steps is undefined.}
 \[
   M \equiv M_0 \step M_1 \step M_2 \step \cdots \step M_{n-1} \step M_n \equiv N
 \]
 That is, there exists an integer $n \geq 0$ and a sequence of terms $M_0, M_1, \dots, M_n$ such that: $ M_0 \equiv M $ and $ M_n \equiv N $ for all $ i $ with $ 0 \leq i < n $, we have $ M_i \step M_{i+1} $.
 \end{definition}
-
-\magenta{ This process of b reducing a term leads raises the question of whether all terms can be reduced indefinitly or whether all terms have some kind of normal form that cant be reduced. (obv not since variables in V cant be reduced), so we are left with: Do all terms reduce to a final form where the only possible bred is M bred M? See recursion Y combinator...}
+The process of succesively $\beta$-reducing a term leads raises the question of whether all terms can be reduced indefinitly. We know the answer to this, since for instance, variables in $\Vset$ cannot be reduced. The subsequent question then is, Do all all terms have some kind of normal form that cannot be reduced further? This is answered in Section \myref{sec:recursion-fixed-points}.
 
 \begin{definition} \bequiv \ relation \magenta{add more detail and complete the definition} \\
 \[
@@ -287,21 +300,12 @@ Taking a closer look, $A$, applies $f$ twice to $x$, as a consequence, $B$ is be
 
 \magenta{normalization + church rosser i.e. confluence}
 
+\subsection{\centering Some Important Constructions}
 
+Within the \lcalc \ there exist a number of conventional constructions that represent key ideas in programming (numbers, booleans, branching and lists among others) In the following we define a few of the most important ones. These constructions can be used to prove relevant statements concerning the expressiveness of the \lcalc.
 
-
-
-
-
-
-
-
-
-\subsection{\centering Some Important Constructs}
-
-Within the \lcalc \ there exist a number of conventional constructions that represent key ideas in programming (numbers, booleans, branches and lists among others) In the following we define a few of the most important ones.
-
-We begin defining $ \mathbb{N} $ for no particular reason \orange{other than the natural numbers are the foundation of most of mathematics}. The notion of natural numbers in the \lcalc \ follows from the Peano axioms:
+We begin defining $ \mathbb{N} $ for no particular reason other than the natural numbers are the foundation of most of computer science. The notion of natural numbers in the \lcalc \ follows from the Peano axioms:
+\begin{definition} Peano Axioms, the set of natural numbers $\mathbb{N}$
 \begin{itemize}
 \item (Zero) \( 0 \in \NAT \)
 \item (Successor) \( \forall x \in \NAT, s(x) \in \NAT \)
@@ -309,15 +313,50 @@ We begin defining $ \mathbb{N} $ for no particular reason \orange{other than the
 \item (Injectivity) \( \forall x, y \in \NAT, s(x) = s(y) \Rightarrow x = y \)
 \item (Induction) \( P(0) \land \forall ( P(x) \Rightarrow P(s(x))) \Rightarrow \forall x,  P (x) \)
 \end{itemize}
-\magenta{Maybe include here a graph to make the intuition behind the axioms}
-Say for instance we mean to represent $ 3 $ using Peano notation, we would come up with $ s(s(s(0))) $. To add two numbers one can just use the set of rules:
-\[
-  \begin{cases}
-    n + s(m) = s(n + m) \\
-    n + 0 = n
+Graphically:
+\begin{center}
+  \begin{tikzpicture}[
+    roundnode/.style={circle, draw=black!60, fill=gray!20, very thick, minimum size=7mm},
+    emptynode/.style={circle, draw=black!0, fill=gray!20, very thick, minimum size=8mm}
+    ]
+    \node[roundnode]      (zero)                        {\textbf{0}};
+    \node[roundnode]      (one)       [right=of zero]   {1};
+    \node[roundnode]      (two)       [right=of one]    {2};
+    \node[roundnode]      (three)     [right=of two]    {3};
+    \node[emptynode]      (dots)      [right=of three]  {...};
+    \node[roundnode]      (nth)       [right=of dots]   {n};
+
+    \draw[->] (zero.east) -- node[midway, above] {s} (one.west);
+    \draw[->] (one.east) -- node[midway, above] {s} (two.west);
+    \draw[->] (two.east) -- node[midway, above] {s} (three.west);
+    \draw[->] (three.east) -- node[midway, above] {s} (dots.west);
+    \draw[->] (dots.east) -- node[midway, above] {s} (nth.west);
+  \end{tikzpicture}
+\end{center}
+\end{definition}
+\begin{example}
+  Say for instance we mean to represent $ 3 $ using Peano notation, using the graph, we would come up with $ s(s(s(0))) $, since it is $3$ steps away from $0$.
+\end{example}
+\begin{definition} To add and multiply natural numbers one can just use following the sets of rules:
+  \[
+    n + m = 
+    \begin{cases}
+      n & \text{if } m = 0 \\
+      s(n + m') & \text{if } m = s(m')
+    \end{cases}
+    \quad
+    a \cdot b =
+    \begin{cases}
+      0 & \text{if } b = 0 \\
+      a \cdot b' + a & \text{if } b = s(b')
+    \end{cases}
   \end{cases}
 \]
-A recursive rule that performs the addition, and a base case to stop the recursion for n + 0, since there is no such number that has $ 0 $ as succesor \ref{def:peano-nat-initial}.
+\end{definition}
+\begin{itemize*}
+\item \underline{$a + b$}: A recursive rule that performs the addition, and a base case to stop the recursion for n + 0, since there is no such number that has $ 0 $ as succesor \ref{def:peano-nat-initial}.
+\item \underline{$a \cdot b$}: Using addition we define multiplication in a similar way, adding $a$ as many times as the function $s$ is applied to $0$ in $b$
+\end{itemize*}
 \begin{definition} Representation of the set of all naturals, usually referred to as Church numerals:
   \label{def:church-naturals}
   \begin{align*}
@@ -325,7 +364,7 @@ A recursive rule that performs the addition, and a base case to stop the recursi
     \texttt{SUCC} &\equiv \la n. \la f. \la x . f ( n f x )
   \end{align*}
 \end{definition}
-\begin{remark}
+\begin{example}
   The church numerals have been defined similarly to the peano axioms, that is, by bringing into existance an initial element and using the succesor function to define the rest of them. Let us apply \texttt{SUCC} a few times to illustrate:
   \begin{align*}
     \texttt{0} &\equiv \la f.\la x. x \\
@@ -335,14 +374,14 @@ A recursive rule that performs the addition, and a base case to stop the recursi
     \texttt{n} &\equiv \la f.\la x. f ^ n x
   \end{align*}
   where $ n $ denotes the number of times we append $ f $.
-\end{remark}
+\end{example}
 Now that we have a construction for the naturals, we can define some arithmetic operations:
 \begin{align*}
   \texttt{ADD} &\equiv \la m.\la n. \la f. \la x. m f ( n f x) \\
   \texttt{MUL} &\equiv \la f.\la x. \la f. \la x. m (n f) x \\
   \texttt{ISZERO} &\equiv \lambda n. n\,(\lambda x.\texttt{FALSE})\,\texttt{TRUE}
 \end{align*}
-This are left as a sidequest since they will not be used in the rest of the text.
+This proves that the \lcalc \ is capable of arithmetic, we leave them as a sidequest since we will not be extending or using them or in the rest of the text.
 
 The next construction in line are the truth values of boolean logic, ``\textit{true}'' and ``\textit{false}'' for short.
 \begin{definition} Boolean truth values:
@@ -373,10 +412,10 @@ The reality of the \IF \ is that it is just a combinator that happens to behave 
     \quad
     \begin{aligned}
       & \IF \ \FALSE \ M \ N \\
-      \curly^* \ & \FALSE\ M\, N \curly N
+      \curly^* \ & \FALSE\ M\, N \curly^* N
     \end{aligned}
   \]
-  So the \IF \ just combines $b, t, e$ in such a way that whenever b is a church encoded boolean either $t$ or $e$ is dropped depending on the truth value of $b$. See Remark \ref{rem:true-false}. From this example we extract that $ \la x . x $ is equivalent to \IF \ it terms of behaviour. Thus, we could use $ \IF \equiv \la x . x $ interchangeably.
+  So the \IF \ just combines $b, t, e$ in such a way that whenever b is a church encoded boolean either $t$ or $e$ is dropped depending on the truth value of $b$. See Remark \ref{rem:true-false}. From this example we extract that $ \la x . x $ is equivalent to \IF \ it terms of behaviour, and thus, we could use $ \IF \equiv \la x . x $ interchangeably.
 \end{example}
 \begin{remark}
   Using the \IF \ we can implement an universal set of logic gates:
@@ -453,19 +492,16 @@ that binds a new element $h$ to to an pre-existing list or to \NIL.
 
 
 \subsection{\centering Fixed Point Combinators and Recursion}
-\orange{
-This process of b reducing a term leads raises the question of whether all terms can be reduced indefinitly or whether all terms have some kind of normal form that cant be reduced. (obv not since variables in V cant be reduced), so we are left with: Do all terms reduce to a final form where the only possible bred is M bred M? See recursion Y combinator...}
+\label{sec:recursion-fixed-points}
 
-\magenta{Improve this whole section}
 
-The most straight forward way to test this, is to check whether there exists some term that reduces to itself, that is \( M \curly^n M \) with $ n > 0 $. It turns out \( \Omega \equiv (\la x . \, x \, x) (\la x . \, x \, x) \) fullfills this requirement. Let us inspect what goes on as we keep $\beta$-reducing this term:
+The most straight forward way to test this, is to check whether there exists some term that reduces to itself, effectively creating a loop in the $\beta$-reduction chain so to speak, that is \( M \curly^n M \) with $ n > 0 $. It turns out \( \Omega \equiv (\la x . \, x \, x) (\la x . \, x \, x) \) fullfills this requirement. Let us inspect what goes on as we keep $\beta$-reducing this term:
 \[
   \Omega \equiv (\la x . \, x \, x) (\la x . \, x \, x) \curly (\la x . \, x \, x) (\la x . \, x \, x) \curly^* (\la x . \, x \, x) (\la x . \, x \, x) \equiv \Omega
 \]
 This so called $\Omega$-combinator, proves that not all terms have a normal form, and shines a beam of light onto how recursion can be achieved in the \lcalc.
-Recursion is important since for instance Turing Machines may run programs that do not terminate. \magenta{elaborate...}
 
-There is one caviat to all of this, namely that classically recursion is achieved through naming, take for instance this definition for the \mathrm{gdc}:
+There is one caviat to all of this, namely that classically recursion is achieved through naming, take for instance this definition for the $\mathrm{gdc}$:
 \begin{align*}
   \underline{\mathrm{gcd}}(a,b) &= 
                       \begin{cases}
@@ -473,7 +509,7 @@ There is one caviat to all of this, namely that classically recursion is achieve
                         \underline{\mathrm{gcd}}(b,\, a \bmod b) & b \neq 0
                       \end{cases}
 \end{align*}
-Here, when $b \neq 0$ the name gcd is used to refer to the same definition again. In the \lcalc \ such self-referencing definitions are not permited since the language does not allow names. \magenta{See [DefBNF]}. To bypass this setback the notion of fixed point is of particular interest.
+Here, when $b \neq 0$ the name gcd is used to refer to the same definition again. In the \lcalc \ such self-referencing definitions are not permited since the language does not allow names. See \myref{def:lambda-terms-2}. To bypass this setback the notion of fixed point is of particular interest.
 \begin{definition}
   Let \( f : X \to X \) be a function. An element \( x \in X \) is called a fixed point of \( f \) if \( f(x) = x. \)
 \end{definition}
@@ -492,13 +528,13 @@ Here, when $b \neq 0$ the name gcd is used to refer to the same definition again
     \end{tabular}
   \]
 \end{example}
-This harmless concept satisfies an interesting property, namely that $ x = f(x) = f(f(x)) = f^n(x) $ effectively creating a chain every element $ f^{n+1}(x) = f(f^{n}(x))$, thus attaining self-reference without naming. This idempotent behaviour under application is important, since it showcases the ability of fixed points to induce recursion. Our quest now, is to find a term that can simulate this behaviour. To do this, let us translate the definition for fixed point into the $\lambda$-world.
-\magenta{maybe use \circ in the chain since it might have some meaning in the context of categories},
+This harmless concept satisfies an interesting property, namely that $ x = f(x) = f(f(x)) = f^n(x) $ effectively creating a chain every element $ f^{n+1}(x) = f(f^{n}(x))$, thus attaining self-reference without naming. This idempotent behaviour under application is important, since it showcases the ability of fixed points to induce recursion. Our quest now, is to find a term that simulates this behaviour. To do this, let us translate the definition for fixed point into the $\lambda$-world.
+\magenta{maybe use circ (i.e function composition) in the chain since it might have some meaning in the context of categories}.
 \begin{definition}
   Given a lambda term \( L \in \La \), a term \( M \in \La \) is called a fixed point of \( L \) if \( M =_\beta L M \).
 \end{definition}
 \begin{theorem}
-  For every \( L \in \La \), there exists \( M \in \La \) such that $ M $ is a fixed point for $ M $ i.e. $ M =_\beta L M. $\orange{ This theorem is usually referred to as the Fixed Point Theorem in the literature}.
+  For every \( L \in \La \), there exists \( M \in \La \) such that $ M $ is a fixed point for $ M $ i.e. $ M =_\beta L M $. Referred to as the Fixed Point Theorem in the literature.
 \end{theorem}
 \begin{proof} Given $L \in \La$, define $M$ as below:
   \[
@@ -513,25 +549,30 @@ This harmless concept satisfies an interesting property, namely that $ x = f(x) 
   \end{align*}
   Hence, $ M =_\beta L M $, as required.
 \end{proof}
-\begin{note}
-  See how $ L M $ is the application of $ M $ to $ L $ and that using \magenta{\ref{} [RightApplication]} we can keep $\beta$-reducing $ M $ the same way we did for $ x = f(x) = f(f(x))\dots $ only this time using lambda terms:
+  See how $ L M $ is the application of $ M $ to $ L $ and that using \textsc{AppR} we can keep $\beta$-reducing $ M $ the same way we did for $ x = f(x) = f(f(x))\dots $ only this time using lambda terms:
   \[
     M \curly L \, M \curly L \, L \, M \curly^* L^n M.
   \]
-\end{note}
-Now that nameless self-reference has been proven to exist within the realm of the \lcalc, we take a step forward and introduce a few of the most important fixed point combinators and explore their nature.
-
+Now that nameless self-reference has been proven to exist within the realm of the \lcalc, we take a step forward and introduce a few of the most important fixed point combinators and explore their different natures.
 \begin{definition} $Y$ Combinator
 \[
   Y \triangleq \la f.\, (\la x.\, f\, (x\, x))\, (\la x.\, f\, (x\, x))
 \]
+\end{definition}
+
+
+
+
+
+
+
+
 
 
 
 
 
 \newpage
-
 Turing combinator
 \[
   \Theta \triangleq 
@@ -544,26 +585,16 @@ Z combinator
   (\lambda x.\, f\, (\lambda v.\, x\, x\, v))
 \]
 \magenta{Turing completeness of the \lcalc}
-
 \begin{align*}
   \texttt{CONS} &\equiv \la h.\la t.\la f.\la z. f\,h\,(t\,f\,z) \\
   \texttt{IS\_NIL} &\equiv \la l. l\,(\la h.\la t. \texttt{FALSE})\,\texttt{TRUE} \\
   \texttt{HEAD} &\equiv \la l. l\,(\la h.\la t. h)\,\text{undef} \\
   \texttt{TAIL} &\equiv \la l.\, \texttt{FIRST}\,(l\,(\la p.\la h.\, \texttt{PAIR}\,(\texttt{SECOND}\,p)\,(\texttt{CONS}\,h\,(\texttt{SECOND}\,p)))\,(\texttt{PAIR}\,\texttt{NIL}\,\texttt{NIL}))
 \end{align*}
-
-
-
-
-
 \textbf{Recursion:}
 \begin{align*}
   \texttt{Y} &\equiv \lambda f.(\lambda x. f\,(x\,x))\,(\lambda x. f\,(x\,x))
 \end{align*}
-
-
-
-
 \section{\centering Simply Typed \lCalc}
 \orange{
 The Untyped Lambda Calculus in computationally equivalent to a  Turing machine. However, with great computational power comes limited decidability of properties, leading to non-termination, or expressions such as $x(\lambda y . y)$, whose meaning is unclear.
@@ -576,5 +607,3 @@ Having grasped the untyped lambda calculus's Turing completeness and ability to 
 \section*{\centering A Primer on Logic}
 \magenta{build up to first order logic}
 \end{document}
-
-
