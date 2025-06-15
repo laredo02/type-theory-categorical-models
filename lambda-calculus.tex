@@ -15,20 +15,17 @@
   urlcolor=refcolor,
   pdfborder={0 0 0}      % Removes the box around links
 ]{hyperref}
-
 \usepackage{xcolor}
 \usepackage{etoolbox}
-\definecolor{refcolor}{RGB}{70, 40, 100}  % Adjust RGB as needed for reddish-orange
-\newcommand{\myref}[1]{\textcolor{refcolor}{\textbf{[\hyperref[#1]{\ref*{#1}}}]}}
 
+\definecolor{refcolor}{RGB}{0, 0, 0}  % Adjust RGB as needed for reddish-orange
+\newcommand{\myref}[1]{\textcolor{refcolor}{\hyperref[#1]{\ref*{#1}}}}
 \newcommand{\subst}[2]{[#1 := #2]}    % Substitution
 \newcommand{\step}{\curly} % One-step beta reduction
 \newcommand{\lam}[2]{\lambda #1.\,#2} % Lambda abstraction
-
 \newcommand{\app}[2]{#1.\,#2} % Lambda abstraction
 \newcommand{\abs}[2]{\la #1.\,#2} % Lambda abstraction
 \newcommand{\curlysym}{\mathrel{\leftrightarrow}_\beta}
-
 \renewcommand{\arraystretch}{1.2} % increase vertical padding (default is 1)
 
 \setlength{\tabcolsep}{12pt} % horizontal padding
@@ -44,7 +41,7 @@
 
 \chapter{\lCalc}
 
-In the early 20th century, mathematicians such as Bertrand Russell, David Hilbert, and Kurt Gödel were trying to set complete, consistent, and decidable foundations for mathematics. Within this context, Alonzo Church, in he's effort to formalize the notion of  computability, introduced a minimal symbolic language \myref{def:lambda-terms-1} based upon function abstraction and function application, this system is now called \lcalc.
+In the early 20th century, mathematicians such as Bertrand Russell, David Hilbert, and Kurt Gödel were trying to set complete, consistent, and decidable foundations for mathematics. Within this context, Alonzo Church, in he's effort to formalize the notion of  computability, introduced a minimal symbolic language based upon function abstraction and function application, this system is now called \lcalc.
 
 In 1936, Church used lambda calculus to address Hilbert’s Entscheidungsproblem—whether a mechanical method could determine the truth of any first-order logic statement. He proved no such algorithm exists, establishing the undecidability of first-order logic.
 
@@ -53,7 +50,7 @@ One of the nuances formalized by the \lcalc \ is the disctinction between extens
 }
 }
 
-Languages like LISP, Haskell, Erlang and others share the \lcalc \ as it's theoretical foundation. It has has established itself as the backbone of functional programming. The introduction of type systems into the \lcalc \ has allowed us to computer-verify mathematical proofs and develop programs that are correct by construction.\footnote{Principles of the \lcalc \ and Type Theory underlie every computer assisted verification tool as well as proof assistants and kitchen table programming languages like C or Java.}
+Languages like LISP, Haskell, Erlang and others share the \lcalc \ as their theoretical foundation. It has has established itself as the backbone of functional programming. The introduction of type systems into the \lcalc \ has allowed us to computer-verify mathematical proofs and develop programs that are correct by construction.\footnote{Principles of the \lcalc \ and Type Theory underlie every computer assisted verification tool as well as proof assistants and kitchen table programming languages like C or Java.}
 
 
 \newpage
@@ -80,19 +77,19 @@ Since we are dealing with a formal language, it is in our benefit to introduce a
 \item \( \Sigma^* \) denotes the set of all finite strings over \( \Sigma \), \( \varepsilon \in \Sigma^* \)
 \item A language \( L \) over an alphabet \( \Sigma \) is a subset of \( \Sigma^* \)
 \end{itemize}
-Our aim now, to generate the set $\La$,  to do this, we will make use of a grammar. When dealing with grammars that define programming languages i.e. context-free grammars, Backus-Naur Form (BNF) \ref{}[BNF] is the way to go:
+Our aim now, to generate the set $\La$,  to do this, we will make use of a grammar. When dealing with grammars that define programming languages i.e. context-free grammars, Backus-Naur Form, BNF for short is the way to go:
 \begin{itemize}
 \item Nonterminals are enclosed in angle brackets (e.g. \texttt{<expr>})
 \item Terminals are written literally (e.g. \texttt{"$\lambda$"}, \texttt{"."}, $x$)
 \item Productions define how nonterminals expand, written as \texttt{::=}
 \item The vertical bar \texttt{|} denotes available expansions
 \end{itemize}
-Thus, to define the language for natural numbers in decimal notation:
+Thus, the language for natural numbers in decimal notation is represented using:
 \begin{align*}
   \texttt{<digit>} &\;\texttt{::=}\; \texttt{"0"} \;\texttt{|}\; \texttt{"1"} \;\texttt{|}\; \texttt{"2"} \;\texttt{|}\; \texttt{"3"} \;\texttt{|}\; \texttt{"4"} \;\texttt{|}\; \texttt{"5"} \;\texttt{|}\; \texttt{"6"} \;\texttt{|}\; \texttt{"7"} \;\texttt{|}\; \texttt{"8"} \;\texttt{|}\; \texttt{"9"} \\
   \texttt{<number>} &\;\texttt{::=}\; \texttt{<digit>} \;|\; \texttt{<digit>} \ \texttt{<number>}
 \end{align*}
-\begin{definition} Taking advantage of BNF notation, an alternative definition for $\La$ \myref{def:lambda-terms-1}:
+\begin{definition} Taking advantage of BNF notation, an alternative definition for $\La$ would be:
   \label{def:lambda-terms-2}
   \begin{align*}
     \texttt{<term>} &\;\texttt{::=}\; \texttt{<variable>} \\
@@ -131,17 +128,14 @@ Having defined the language of the \lcalc, we move on to the mechanics of comput
     & \FV {\lambda x . M} = \FV M \setminus \{x\}
   \end{align*}
   Where $ x \in \Vset $ and $ M, N \in \La $, and $\mathcal{P}$ denotes the power set.
-  \begin{lstlisting}[style=haskellstyle,caption={Implementation of FVV in Haskell.}]
+  \begin{lstlisting}[style=haskellstyle,caption={Implementation of FV in Haskell.}]
 FV :: Term -> Set String
 FV (Var x)     = Set.singleton x
 FV (App t1 t2) = Set.union (FV t1) (FV t2)
 FV (Abs x t)   = Set.delete x (FV t)
   \end{lstlisting}
 \end{definition}
-\begin{example}
-  Compute the free variables of $\lambda x . \lambda y . y x z$:
-  
-  The term well-formed, thus belongs to $\La$, so we proceed:
+\begin{example} Computing the free variables of $\lambda x . \lambda y . y x z$. The term well-formed, so we proceed:
   \begin{align*}
     \FV {\lambda x . \lambda y . y x z} &= \FV {\lambda y . yxz} \setminus \{x\} \\
                                         &= \FV {yxz} \setminus \{x, y\} \\
@@ -151,7 +145,7 @@ FV (Abs x t)   = Set.delete x (FV t)
   Of course, $z$ is the only free variable in the expression as it is the only variable that is not captured by some $\la$-abstraction.
 \end{example}
 \begin{definition}
-  A term $M \in \La$ is closed if and only if $\FV M = \emptyset$, closed lambda terms are often referred to as combinators. $\Lambda^0$ is the set of all closed lambda terms.
+  A term $M \in \La$ is closed if and only if $\FV M = \emptyset$, closed lambda terms are often referred to as combinators. $\La^0$ is the set of all closed lambda terms.
 \end{definition}
 Since every lambda term is made up of other smaller lambda terms, it is only natural to define the set that contains all subterms of a given term:
 \begin{definition} Given $T \in \La$, $\functionfont{Sub} : \La \to \mathcal{P}(\Vset)$ maps a term to the set of it's subterms.
@@ -161,7 +155,7 @@ Since every lambda term is made up of other smaller lambda terms, it is only nat
     &\Sub {\la x . M} = \Sub M  \cup \{\la x. M\}
   \end{align*}
   Where $x \in \Vset$ and $M, N \in \La $.
-  \begin{lstlisting}[style=haskellstyle,caption={Haskell implementation of Subb.}]
+  \begin{lstlisting}[style=haskellstyle,caption={Haskell implementation of Sub.}]
 Sub :: Term -> Set Term
 Sub v@(Var _)     = Set.singleton v
 Sub a@(App t1 t2) = Set.insert a (Set.union (Sub t1) (Sub t2))
@@ -184,6 +178,10 @@ Sub a@(Abs _ t)   = Set.insert a (Sub t)
   \end{itemize}
 \end{definition}
 
+\magenta{Binding vs bound vs free variables. alpha equiv ultimately means replacing names of bound variables i.e. variables that are used as placeholders for terms so we dont care about renaming them}
+
+\magenta{Intro to the notion of alpha equivalence}
+
 \begin{definition}Capture-Avoiding Substitution Rules
   Let \( M, N \in \La \) and \( x, y, z \in \Vset \). The substitution \( M[x := N] \) is defined inductively as:
   \[
@@ -205,7 +203,6 @@ Sub a@(Abs _ t)   = Set.insert a (Sub t)
   \item De Bruijin
   \item Add insight and intuition upon the formal definition
   \item Add some haskell implementation details
-  \item Maybe add code that generates \aequivlt \ terms
   \end{itemize}}
 \begin{definition} Two lambda terms \( M, N \in \La \) are \aequivlt, written \( M =_\alpha N \), if they are structurally identical except for the names of bound variables.
   Formally:
@@ -229,65 +226,63 @@ Sub a@(Abs _ t)   = Set.insert a (Sub t)
     \item This relation is the most horizontal of the ones that show up in the text. By this I mean it just relates terms with equivalent terms at the same level in the \bred \ tree. (find a way to say this without having introduced \bred \ yet)
   \end{itemize}
 }
-\begin{definition} Single-step \bred \ defined using inference rules: \orange{(remove vertical space below)}
-  \label{def:single-step-betared}
-  \begin{center}
-    \[
-      \begin{aligned}
-        &\inferrule*[right=\textsc{Beta}]
-          { }
-          { (\lam{x}{M})\,N \step M\subst{x}{N} } \\[2ex]
-        &\inferrule*[right=\textsc{AppL}]
-          { M_1 \step M_1' }
-          { M_1\,M_2 \step M_1'\,M_2 }
-      \end{aligned}
-      \quad
-      \begin{aligned}
-        &\inferrule*[right=\textsc{Abs}]
-          { M \step M' }
-          { \lam{x}{M} \step \lam{x}{M'} } \\[2ex]
-        &\inferrule*[right=\textsc{AppR}]
-          { M_2 \step M_2' }
-          { M_1\,M_2 \step M_1\,M_2' }
-      \end{aligned}
-    \]
-  \end{center}
-  where \( M, N \in \La \).
-  For those not so familiar with inference rules here is an alternative definition where $L$ also belongs to $\La$:
-\end{definition}
+\begin{definition} Single-step $\beta$-reduction $\step$ is defined using the following inference rules:
+\[
+\begin{array}{@{}l@{\quad}l@{}}
+  \inferrule*[right=\textsc{Beta}]
+    { }
+    { (\lam{x}{M})\,N \step M\subst{x}{N} }
+  &
+  \inferrule*[right=\textsc{Abs}]
+    { M \step M' }
+    { \lam{x}{M} \step \lam{x}{M'} } \\[2ex]
+  \inferrule*[right=\textsc{AppL}]
+    { M_1 \step M_1' }
+    { M_1\,M_2 \step M_1'\,M_2 }
+  &
+  \inferrule*[right=\textsc{AppR}]
+    { M_2 \step M_2' }
+    { M_1\,M_2 \step M_1\,M_2' }
+\end{array}
+\]
+where \( M, N \in \La \). For those not familiar with inference rules, here is an alternative definition where \( L \in \La \)
 \begin{itemize}
-  \item \( (\lam{x}{M})\,N \step M\subst{x}{N} \)
-  \item If $M \step N$, then: \( M\,L \step N\,L; L\,M \step L\,N; \lam{x}{M} \step \lam{x}{N} \)
+\item \( (\lam{x}{M})\,N \step M\subst{x}{N} \)
+\item If $M \step N$, then: \( M\,L \step N\,L; L\,M \step L\,N; \lam{x}{M} \step \lam{x}{N} \)
 \end{itemize}
+\end{definition}
 \magenta{
   Here, The Beta rule abstracts the concept of reduction, that encapsulates the idea of computation within the \lcalc. The reason for this is that Beta reduces an application of an abstraction and removes the abstraction, hence simplifying the term. 
 }
 
 Single \bred s can be applied succesively, which induces the following definition
 
-\begin{definition} Zero or more step \bred, or as in the literature, \emph{reflexive-transitive-closure}:
-
-\smallskip
-We write $M \step^* N$ if and only if there exists a sequence of one-step $\beta$-reductions starting from $M$ and ending at $N$. \footnote{The convention in the literature is to use $\rightarrow_\beta$ for \bred s $\twoheadrightarrow_\beta$ for multi-step \bred s. I prefer to use $\curly$ and $\curly^n$ since this allows me to use the superscript to note the number of steps in the process \bred \ e.g. $ \FALSE \, M \, N \curly^2 $ N. Instead of $\curly^n$ I use $\curly^*$ whenever the number of steps is undefined.}
-\[
-  M \equiv M_0 \step M_1 \step M_2 \step \cdots \step M_{n-1} \step M_n \equiv N
-\]
-That is, there exists an integer $n \geq 0$ and a sequence of terms $M_0, M_1, \dots, M_n$ such that: $ M_0 \equiv M $ and $ M_n \equiv N $ for all $ i $ with $ 0 \leq i < n $, we have $ M_i \step M_{i+1} $.
+\begin{definition} Zero or more step \bred, also called reflexive transitive closure. We write $M \step^* N$ if and only if there exists a sequence of one-step $\beta$-reductions starting from $M$ and ending at $N$.\footnote{The convention in the literature is to use $\rightarrow_\beta$ for \bred s $\twoheadrightarrow_\beta$ for multi-step \bred s. I prefer to use $\curly$ and $\curly^n$ since this allows me to use the superscript to note the number of steps in the process \bred \ e.g. $ (\la f. \la x . \, x) \, M \, N \curly^2 $ N. Instead of $\curly^n$ I use $\curly^*$ whenever the number of steps is undefined.}
+  \label{def:zero-more-bred}
+  \[
+    M \equiv M_0 \step M_1 \step M_2 \step \cdots \step M_{n-1} \step M_n \equiv N
+  \]
+  That is, there exists an integer $n \geq 0$ and a sequence of terms $M_0, M_1, \dots, M_n$ such that: $ M_0 \equiv M $ and $ M_n \equiv N $ for all $ i $ with $ 0 \leq i < n $, we have $ M_i \step M_{i+1} $.
 \end{definition}
-The process of succesively $\beta$-reducing a term leads raises the question of whether all terms can be reduced indefinitly. We know the answer to this, since for instance, variables in $\Vset$ cannot be reduced. The subsequent question then is, Do all all terms have some kind of normal form that cannot be reduced further? This is answered in Section \myref{sec:recursion-fixed-points}.
-
-\begin{definition} \bequiv \ relation \magenta{add more detail and complete the definition} \\
-\[
-  M =_\beta N \iff M \step^* N \lor N \step^* M
-\]
-Put in other words:
-\[
-    M =_\beta N \iff \exists M_0, \dots, M_n \text{ s.t. } M \equiv M_0 \leftrightarrow_\beta M_1 \leftrightarrow_\beta \cdots \leftrightarrow_\beta M_n \equiv N
-\]
-where $ \leftrightarrow_\beta $ denotes a bidirectional $\curly$.
+The process of succesively $\beta$-reducing a term leads raises the question of whether all terms can be reduced indefinitly. We know the answer to this, since for instance, variables in $\Vset$ cannot be reduced. The subsequent question is then, Do all all terms have some kind of normal form that cannot be reduced further? This is answered in Section \myref{sec:recursion-fixed-points}.
+\begin{definition} \bequiv \ relation, equivalence of \lterms \ through \bred s.
+  \[
+    M =_\beta N \iff M \step^* N \lor N \step^* M
+  \]
+ Using definition \ref{def:zero-more-bred}:
+  \[
+    M =_\beta N \iff
+    \begin{cases}
+      \exists M_0, \dots, M_n \text{ s.t. } M \equiv M_0 \curly M_1 \curly \cdots \curly M_n \equiv N \\
+      \exists N_0, \dots, N_n \text{ s.t. } N \equiv N_0 \curly N_1 \curly \cdots \curly N_n \equiv M
+    \end{cases}
+  \]
 \end{definition}
-
-Having covered \bred, we now explore a key aspect of the \lcalc, in the jargon referred to as first-class citizenship, or more formally high-order. When we use high-order to refer to a $\la$-term, we refer to the fact that both functions and arguments are treated indistiguishably, the example below sheds some light on the matter:
+\begin{remark}
+  In the context of equivalence of programs, \bequiv \ can be understood as means for intensional equivalece, the kind of equivalence that requires programs to be equivalent in a step-by-step fashion.
+\end{remark}
+We now explore a key aspect of the \lcalc, in the jargon referred to as first-class citizenship, or high-order, a property of terms that restrains them from being exclusively classified as either function or argument. The example below sheds some light on the matter:
+\begin{example} High Order by example. Let us $\beta$-reduce the \lterm \ $ A \, B \, C $ and inspect the consequences:
 \begin{align*}
   \overbrace { (\lambda f . \lambda y . f f y) }^{A} \overbrace{ (\lambda x . x + 1) }^{B} \overbrace{(2)}^{C}
   &\curly (\lambda y .(\lambda x . x + 1) (\lambda x . x + 1)y)(2) \\
@@ -295,8 +290,12 @@ Having covered \bred, we now explore a key aspect of the \lcalc, in the jargon r
   &\curly^* (\lambda x . x + 1) (3) \\
   &\curly^* (4)
 \end{align*}
+Taking a closer look, $A$, applies $f$ twice to $x$, as a consequence, $B$ is being applied twice to $C$. And so, very easily, we have implemented the $ x + 2 $ function via a sequential application of $x + 1$ to $C$.
+\end{example}
+\begin{remark}
+  As seen above, we can pass what we understand as conventional functions as arguments since they are treated alike.  One can intuitively apreciate the computational expresivenes this brings with it, and how the sintactic-semantic homogeneity sets the \lcalc \ apart from the classical set-theoretic approach to functions.
+\end{remark}
 
-Taking a closer look, $A$, applies $f$ twice to $x$, as a consequence, $B$ is being applied twice to $C$. And so, very easily, we have implemented the $ x + 2 $ function via a sequential application of $x + 1$ to $C$. One can intuitively apreciate the computational expresivenes this brings with it, and how the sintactic-semantic homogeneity sets the \lcalc \ apart from the classical set-theoretic approach to functions.
 
 \magenta{normalization + church rosser i.e. confluence}
 
@@ -308,12 +307,12 @@ We begin defining $ \mathbb{N} $ for no particular reason other than the natural
 \begin{definition} Peano Axioms, the set of natural numbers $\mathbb{N}$
 \begin{itemize}
 \item (Zero) \( 0 \in \NAT \)
-\item (Successor) \( \forall x \in \NAT, s(x) \in \NAT \)
-\item (Initial) \( \forall x \in \NAT, s(x) \neq 0 \) \label{def:peano-nat-initial}
-\item (Injectivity) \( \forall x, y \in \NAT, s(x) = s(y) \Rightarrow x = y \)
-\item (Induction) \( P(0) \land \forall ( P(x) \Rightarrow P(s(x))) \Rightarrow \forall x,  P (x) \)
+\item (Successor) \( \forall n \in \NAT, S(n) \in \NAT \)
+\item (Initial) \( \forall n \in \NAT, S(n) \neq 0 \) \label{def:peano-nat-initial}
+\item (Injectivity) \( \forall n, m \in \NAT, S(n) = S(m) \Rightarrow n = m \)
+\item (Induction) \( P(0) \land \forall ( P(n) \Rightarrow P(S(n))) \Rightarrow \forall n,  P (n) \)
 \end{itemize}
-Graphically:
+The first four axioms can be summarized using a graph:
 \begin{center}
   \begin{tikzpicture}[
     roundnode/.style={circle, draw=black!60, fill=gray!20, very thick, minimum size=7mm},
@@ -333,6 +332,7 @@ Graphically:
     \draw[->] (dots.east) -- node[midway, above] {s} (nth.west);
   \end{tikzpicture}
 \end{center}
+The last axiom is concerned with proving properties for all naturals given a precedent that satisfies the property and proof that if the property is satisfied for $n$ then it is satisfied for $n+1$, then the property is true of all naturals.
 \end{definition}
 \begin{example}
   Say for instance we mean to represent $ 3 $ using Peano notation, using the graph, we would come up with $ s(s(s(0))) $, since it is $3$ steps away from $0$.
@@ -350,14 +350,13 @@ Graphically:
       0 & \text{if } b = 0 \\
       a \cdot b' + a & \text{if } b = s(b')
     \end{cases}
-  \end{cases}
-\]
+  \]
 \end{definition}
-\begin{itemize*}
-\item \underline{$a + b$}: A recursive rule that performs the addition, and a base case to stop the recursion for n + 0, since there is no such number that has $ 0 $ as succesor \ref{def:peano-nat-initial}.
-\item \underline{$a \cdot b$}: Using addition we define multiplication in a similar way, adding $a$ as many times as the function $s$ is applied to $0$ in $b$
-\end{itemize*}
-\begin{definition} Representation of the set of all naturals, usually referred to as Church numerals:
+\begin{itemize}
+\item \underline{$a + b$}: A recursive rule that performs the addition, and a base case to stop the recursion for n + 0, since there is no such number that has $ 0 $ as succesor.
+\item \underline{$a \cdot b$}: Using addition we define multiplication in a similar way, adding $a$ as many times as the function $s$ is applied to $0$ in $b$.
+\end{itemize}
+\begin{definition} Representation of the set of all naturals in the realm of \lcalc, usually referred to as Church numerals:
   \label{def:church-naturals}
   \begin{align*}
     \texttt{0} &\equiv \la f.\la x. x \\
@@ -375,15 +374,22 @@ Graphically:
   \end{align*}
   where $ n $ denotes the number of times we append $ f $.
 \end{example}
+\begin{definition}
 Now that we have a construction for the naturals, we can define some arithmetic operations:
 \begin{align*}
   \texttt{ADD} &\equiv \la m.\la n. \la f. \la x. m f ( n f x) \\
   \texttt{MUL} &\equiv \la f.\la x. \la f. \la x. m (n f) x \\
   \texttt{ISZERO} &\equiv \lambda n. n\,(\lambda x.\texttt{FALSE})\,\texttt{TRUE}
 \end{align*}
-This proves that the \lcalc \ is capable of arithmetic, we leave them as a sidequest since we will not be extending or using them or in the rest of the text.
-
-The next construction in line are the truth values of boolean logic, ``\textit{true}'' and ``\textit{false}'' for short.
+\end{definition}
+\begin{example}
+  \magenta{Beta reduction of a sample multiplication}
+  \magenta{Notion behind ISZERO}
+\end{example}
+\begin{remark}
+  This proves that the \lcalc \ is capable of arithmetic, we leave them as a sidequest since we will not be extending or using them or in the rest of the text.
+\end{remark}
+The next constructions in line are the truth values of boolean logic, ``\textit{true}'' and ``\textit{false}'' for short.
 \begin{definition} Boolean truth values:
   \begin{align*}
     \texttt{TRUE} &\equiv \lambda t.\lambda f. t \\
@@ -493,7 +499,7 @@ that binds a new element $h$ to to an pre-existing list or to \NIL.
 
 \subsection{\centering Fixed Point Combinators and Recursion}
 \label{sec:recursion-fixed-points}
-
+\magenta{Reintroduce the question from before}
 
 The most straight forward way to test this, is to check whether there exists some term that reduces to itself, effectively creating a loop in the $\beta$-reduction chain so to speak, that is \( M \curly^n M \) with $ n > 0 $. It turns out \( \Omega \equiv (\la x . \, x \, x) (\la x . \, x \, x) \) fullfills this requirement. Let us inspect what goes on as we keep $\beta$-reducing this term:
 \[
@@ -521,9 +527,9 @@ Here, when $b \neq 0$ the name gcd is used to refer to the same definition again
       \hline
       $f(x) = c$ & $x = c$ \\
       \hline
-      $g(x) = x$ & $\forall x, x \in \mathbb{R}$ \\
+      $g(x) = x$ & $\{ x \mid x \in \mathbb{R} \}$ \\
       \hline
-      $h(x) = x^2$ & $ x, x \in \{0, 1\} $ \\
+      $h(x) = x^2$ & $ x = 0,\, x = 1 $ \\
       \hline
     \end{tabular}
   \]
@@ -559,6 +565,40 @@ Now that nameless self-reference has been proven to exist within the realm of th
   Y \triangleq \la f.\, (\la x.\, f\, (x\, x))\, (\la x.\, f\, (x\, x))
 \]
 \end{definition}
+\begin{note}
+  \( Y \equiv \la L . M  \) \magenta{M defined previously. Improve this, find some other way to put it? note it is an improved $\Omega$}
+\end{note}
+\begin{remark}
+  Even though the $Y$ combinator is of theoretical interest since it allows us to find recursion within the \lcalc, it is of little practical use since it runs into non-termination e.g.
+  \[
+    \begin{aligned}
+      Y \, F &\equiv (\la f. \, (\la x . \, f \, (x \, x))(\la x . \, f \, (x \, x))) F \\
+      &\curly (\la x . \, F \, (x \, x))(\la x . \, F \, (x \, x)) \\
+             &\curly F((\la x . \, F \, (x \, x))(\la x . \, F \, (x \, x))) \\
+             &\curly F(F((\la x . \, F \, (x \, x))(\la x . \, F \, (x \, x)))) \\
+             &\curly \cdots
+    \end{aligned}
+  \]
+  This is due to its lazy nature, this means that the argument $F$ is not evaluated until $Y$ is done unravelling i.e. never.
+\end{remark}
+To work arround this issue, several other combinators exist, one of the most notorious, the $Z$ combinator is defined next:
+\begin{definition} $Z$ combinator
+\[
+  Z \triangleq \la f.\, (\la x.\, f\, (\la v.\, x\, x\, v))\, (\la x.\, f\, (\la v.\, x\, x\, v))
+\]
+\end{definition}
+\begin{example}
+  \[
+    \begin{align}
+      Z \, F &\equiv (\la f.\, (\la x.\, f\, (\la v.\, x\, x\, v))\, (\la x.\, f\, (\la v.\, x\, x\, v)))\, F \\
+             &\curly (\la x.\, F\, (\la v.\, x\, x\, v))\, (\la x.\, F\, (\la v.\, x\, x\, v)) \\
+             &\curly F\, (\la v.\, (\la x.\, F\, (\la v.\, x\, x\, v))\, (\la x.\, F\, (\la v.\, x\, x\, v))\, v)\, \\
+             &\equiv F\, (\la v.\, Z \, F \, v)\, \\
+    \end{align}
+  \]
+\end{example}
+  
+
 
 
 
@@ -578,12 +618,7 @@ Turing combinator
   \Theta \triangleq 
   (\lambda x\, f.\, f\, (x\, x\, f))\, (\lambda x\, f.\, f\, (x\, x\, f))
 \]
-Z combinator
-\[
-  Z \triangleq \lambda f.\, 
-  (\lambda x.\, f\, (\lambda v.\, x\, x\, v))\, 
-  (\lambda x.\, f\, (\lambda v.\, x\, x\, v))
-\]
+
 \magenta{Turing completeness of the \lcalc}
 \begin{align*}
   \texttt{CONS} &\equiv \la h.\la t.\la f.\la z. f\,h\,(t\,f\,z) \\
