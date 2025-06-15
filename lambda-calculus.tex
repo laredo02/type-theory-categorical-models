@@ -283,6 +283,7 @@ The process of succesively $\beta$-reducing a term leads raises the question of 
 \end{remark}
 We now explore a key aspect of the \lcalc, in the jargon referred to as first-class citizenship, or high-order, a property of terms that restrains them from being exclusively classified as either function or argument. The example below sheds some light on the matter:
 \begin{example} High Order by example. Let us $\beta$-reduce the \lterm \ $ A \, B \, C $ and inspect the consequences:
+  \label{ex:high-order-by-example}
 \begin{align*}
   \overbrace { (\lambda f . \lambda y . f f y) }^{A} \overbrace{ (\lambda x . x + 1) }^{B} \overbrace{(2)}^{C}
   &\curly (\lambda y .(\lambda x . x + 1) (\lambda x . x + 1)y)(2) \\
@@ -316,6 +317,13 @@ Taking a closer look, $A$, applies $f$ twice to $x$, as a consequence, $B$ is be
 \begin{note}
   In simple terms, if the solid arrows exist, then the dashed arrows must exist too.
 \end{note}
+\end{theorem}
+\begin{corollary} Normalization: If a $\lambda$-term $t$ reduces to two normal forms $n_1$ and $n_2$, then they are alpha-equivalent:
+\[
+t \to_\beta^* n_1 \quad \text{and} \quad t \to_\beta^* n_2 \quad \text{and $n_1$, $n_2$ are normal} \quad \Rightarrow \quad n_1 =_\alpha n_2
+\]
+\end{corollary}
+
 
 \subsection{\centering Some Important Constructions}
 
@@ -392,6 +400,9 @@ The last axiom is concerned with proving properties for all naturals given a pre
   \end{align*}
   where $ n $ denotes the number of times we append $ f $.
 \end{example}
+\begin{remark}
+  Since \lterms \ are first-class citizens, and $f$ and $x$ are abstracted away, the reality is that numbers are a quite general construct that has many distinct applications. Recall Example \ref{ex:high-order-by-example} for instance.
+\end{remark}
 \begin{definition}
 Now that we have a construction for the naturals, we can define some arithmetic operations:
 \begin{align*}
@@ -401,8 +412,16 @@ Now that we have a construction for the naturals, we can define some arithmetic 
 \end{align*}
 \end{definition}
 \begin{example}
-  \magenta{Beta reduction of a sample multiplication}
-  \magenta{Notion behind ISZERO}
+  \begin{center}
+    \begin{align*}
+      \texttt{ADD}\;\texttt{2}\;\texttt{3} &= (\la m.\la n.\la f.\la x. m\,f\,(n\,f\,x))\;(\la f.\la x. f\,f\,x)\;(\la f.\la x. f\,f\,f\,x) \\
+                                           &\curly^* \la f.\la x.\; (\la f.\la x. f\,f\,x)\;f\;((\la f.\la x. f\,f\,f\,x)\;f\;x) \\
+                                           &\curly^* \la f.\la x.\; (\la x. f\,f\,x)\;((\la x. f\,f\,f\,x)\;x) \\
+                                           &\curly (\la f.\la x.\; f\,f\,f\,f\,f\,x) \\
+                                           & \equiv \texttt{5} \quad \text{\magenta{Can I use alpha equiv o is it confusing?}}
+    \end{align*}
+  \end{center}
+Multiplication works similarly to addition. As for \texttt{ISZERO}, the intuition behind it is that if the number is zero, then \(\lambda x.\, \texttt{FALSE}\) is dropped, and the result is \texttt{TRUE}; otherwise, it is applied at least once, which immediately yields \texttt{FALSE}.
 \end{example}
 \begin{remark}
   This proves that the \lcalc \ is capable of arithmetic, we leave them as a sidequest since we will not be extending or using them or in the rest of the text.
@@ -511,21 +530,18 @@ that binds a new element $h$ to to an pre-existing list or to \NIL.
   \texttt{HEAD} &\equiv \la l. l\,(\la h.\la t. h)\,\text{undef}
 \end{align*}  
 \end{definition}
-
-
-
-
 \subsection{\centering Fixed Point Combinators and Recursion}
 \label{sec:recursion-fixed-points}
 \magenta{Reintroduce the question from before}
+From the Church Rosser Property of confluence, we know that if a term has a normal form then whenever a term has a normal form, this normal form must be unique. We still have not given an answer to whether all \lterms \ have a normal form.
 
-The most straight forward way to test this, is to check whether there exists some term that reduces to itself, effectively creating a loop in the $\beta$-reduction chain so to speak, that is \( M \curly^n M \) with $ n > 0 $. It turns out \( \Omega \equiv (\la x . \, x \, x) (\la x . \, x \, x) \) fullfills this requirement. Let us inspect what goes on as we keep $\beta$-reducing this term:
+The most straight forward way to test this, is to check whether there exists some term that reduces to itself, effectively creating a loop in the $\beta$-reduction chain so to speak. In more formal terms this means \( M \curly^n M \) with $ n > 0 $. It turns out \( \Omega \equiv (\la x . \, x \, x) (\la x . \, x \, x) \) fullfills this requirement. Let us inspect what goes on as we keep $\beta$-reducing this term:
 \[
   \Omega \equiv (\la x . \, x \, x) (\la x . \, x \, x) \curly (\la x . \, x \, x) (\la x . \, x \, x) \curly^* (\la x . \, x \, x) (\la x . \, x \, x) \equiv \Omega
 \]
 This so called $\Omega$-combinator, proves that not all terms have a normal form, and shines a beam of light onto how recursion can be achieved in the \lcalc.
 
-There is one caviat to all of this, namely that classically recursion is achieved through naming, take for instance this definition for the $\mathrm{gdc}$:
+There is one caveat to this, that classically, recursion is achieved through naming, take for instance this definition for the $\mathrm{gdc}$:
 \begin{align*}
   \underline{\mathrm{gcd}}(a,b) &= 
                       \begin{cases}
@@ -533,11 +549,11 @@ There is one caviat to all of this, namely that classically recursion is achieve
                         \underline{\mathrm{gcd}}(b,\, a \bmod b) & b \neq 0
                       \end{cases}
 \end{align*}
-Here, when $b \neq 0$ the name gcd is used to refer to the same definition again. In the \lcalc \ such self-referencing definitions are not permited since the language does not allow names. See \myref{def:lambda-terms-2}. To bypass this setback the notion of fixed point is of particular interest.
+Here, when $b \neq 0$ the name gcd is used to refer to the same definition again. In the \lcalc \ such self-referencing definitions are not permited since the language does not allow names. To bypass this setback the notion of fixed point is of particular interest.
 \begin{definition}
   Let \( f : X \to X \) be a function. An element \( x \in X \) is called a fixed point of \( f \) if \( f(x) = x. \)
 \end{definition}
-\begin{example} Some simple functions that illustrate what fixed points are about:
+\begin{example} Some simple functions that illustrate what fixed points are:
   \[
     \begin{tabular}{|c|c|}
       \hline
@@ -552,11 +568,12 @@ Here, when $b \neq 0$ the name gcd is used to refer to the same definition again
     \end{tabular}
   \]
 \end{example}
-This harmless concept satisfies an interesting property, namely that $ x = f(x) = f(f(x)) = f^n(x) $ effectively creating a chain every element $ f^{n+1}(x) = f(f^{n}(x))$, thus attaining self-reference without naming. This idempotent behaviour under application is important, since it showcases the ability of fixed points to induce recursion. Our quest now, is to find a term that simulates this behaviour. To do this, let us translate the definition for fixed point into the $\lambda$-world.
+This harmless idea satisfies an interesting property, namely that $ x = f(x) = f(f(x)) = f^n(x) $ effectively creating a chain every element $ f^{n+1}(x) = f(f^{n}(x))$, thus attaining self-reference without naming. This idempotent behaviour under application is important, since it showcases the ability of fixed points to induce recursion. Our quest now, is to find a term that simulates this behaviour. To do this, let us translate the definition for fixed point into the $\lambda$-world.
 \magenta{maybe use circ (i.e function composition) in the chain since it might have some meaning in the context of categories}.
 \begin{definition}
   Given a lambda term \( L \in \La \), a term \( M \in \La \) is called a fixed point of \( L \) if \( M =_\beta L M \).
 \end{definition}
+No surprises here, the definition is close to a one-to-one mapping of its functional counterpart seen previously. To our surprise, it turns out that every lambda term has a fixed point, as stated in the theorem below:
 \begin{theorem}
   For every \( L \in \La \), there exists \( M \in \La \) such that $ M $ is a fixed point for $ M $ i.e. $ M =_\beta L M $. Referred to as the Fixed Point Theorem in the literature.
 \end{theorem}
@@ -573,12 +590,14 @@ This harmless concept satisfies an interesting property, namely that $ x = f(x) 
   \end{align*}
   Hence, $ M =_\beta L M $, as required.
 \end{proof}
+\begin{remark}
   See how $ L M $ is the application of $ M $ to $ L $ and that using \textsc{AppR} we can keep $\beta$-reducing $ M $ the same way we did for $ x = f(x) = f(f(x))\dots $ only this time using lambda terms:
   \[
     M \curly L \, M \curly L \, L \, M \curly^* L^n M.
   \]
-Now that nameless self-reference has been proven to exist within the realm of the \lcalc, we take a step forward and introduce a few of the most important fixed point combinators and explore their different natures.
-\begin{definition} $Y$ Combinator
+\end{remark}
+Now that nameless self-reference has been proven to exist within the the \lcalc, we take a step forward and introduce a few of the most important fixed point combinators and explore their different natures.
+\begin{definition} $Y$ Combinator. \orange{The term that given some other term returns its fixed point.}
 \[
   Y \triangleq \la f.\, (\la x.\, f\, (x\, x))\, (\la x.\, f\, (x\, x))
 \]
@@ -587,7 +606,7 @@ Now that nameless self-reference has been proven to exist within the realm of th
   \( Y \equiv \la L . M  \) \magenta{M defined previously. Improve this, find some other way to put it? note it is an improved $\Omega$}
 \end{note}
 \begin{remark}
-  Even though the $Y$ combinator is of theoretical interest since it allows us to find recursion within the \lcalc, it is of little practical use since it runs into non-termination e.g.
+  Even though the $Y$ combinator is of theoretical interest since it allows us to find recursion within the \lcalc, it is of little practical use since it always runs into non-termination e.g.
   \[
     \begin{aligned}
       Y \, F &\equiv (\la f. \, (\la x . \, f \, (x \, x))(\la x . \, f \, (x \, x))) F \\
@@ -607,12 +626,12 @@ To work arround this issue, several other combinators exist, one of the most not
 \end{definition}
 \begin{example}
   \[
-    \begin{align}
+    \begin{aligned}
       Z \, F &\equiv (\la f.\, (\la x.\, f\, (\la v.\, x\, x\, v))\, (\la x.\, f\, (\la v.\, x\, x\, v)))\, F \\
              &\curly (\la x.\, F\, (\la v.\, x\, x\, v))\, (\la x.\, F\, (\la v.\, x\, x\, v)) \\
              &\curly F\, (\la v.\, (\la x.\, F\, (\la v.\, x\, x\, v))\, (\la x.\, F\, (\la v.\, x\, x\, v))\, v)\, \\
              &\equiv F\, (\la v.\, Z \, F \, v)\, \\
-    \end{align}
+    \end{aligned}
   \]
 \end{example}
   
@@ -631,17 +650,6 @@ To work arround this issue, several other combinators exist, one of the most not
 
 
 \newpage
-
-
-\end{document}
-
-\end{theorem}
-\begin{corollary}[Normalization]
-If a $\lambda$-term $t$ reduces to two normal forms $n_1$ and $n_2$, then they are alpha-equivalent:
-\[
-t \to_\beta^* n_1 \quad \text{and} \quad t \to_\beta^* n_2 \quad \text{and $n_1$, $n_2$ are normal} \quad \Rightarrow \quad n_1 =_\alpha n_2
-\]
-\end{corollary}
 
 
 
