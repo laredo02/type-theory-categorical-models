@@ -533,7 +533,7 @@ that binds a new element $h$ to to an pre-existing list or to \NIL.
 \subsection{\centering Fixed Point Combinators and Recursion}
 \label{sec:recursion-fixed-points}
 \magenta{Reintroduce the question from before}
-From the Church Rosser Property of confluence, we know that if a term has a normal form then whenever a term has a normal form, this normal form must be unique. We still have not given an answer to whether all \lterms \ have a normal form.
+From the Church Rosser Property of confluence, we know that whenever a term has a normal form, this normal form must be unique. We still have not given an answer to whether all \lterms \ have a normal form.
 
 The most straight forward way to test this, is to check whether there exists some term that reduces to itself, effectively creating a loop in the $\beta$-reduction chain so to speak. In more formal terms this means \( M \curly^n M \) with $ n > 0 $. It turns out \( \Omega \equiv (\la x . \, x \, x) (\la x . \, x \, x) \) fullfills this requirement. Let us inspect what goes on as we keep $\beta$-reducing this term:
 \[
