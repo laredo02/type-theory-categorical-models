@@ -296,14 +296,32 @@ Taking a closer look, $A$, applies $f$ twice to $x$, as a consequence, $B$ is be
   As seen above, we can pass what we understand as conventional functions as arguments since they are treated alike.  One can intuitively apreciate the computational expresivenes this brings with it, and how the sintactic-semantic homogeneity sets the \lcalc \ apart from the classical set-theoretic approach to functions.
 \end{remark}
 
-
-\magenta{normalization + church rosser i.e. confluence}
+\begin{theorem} The Church-Rosser Property states that $\forall M, N_1, N_2 \in \La$:
+  \[
+    M \curly^* N_1 \quad \text{and} \quad M \curly^* N_2 \quad \Rightarrow \quad \exists N_3 \, \mid \, N_1 \curly^* N_3 \,\wedge\, N_2 \curly^* N_3
+  \]
+  If a lambda term $M$ has a normal form, then every reduction sequence starting from $M$ eventually reduces to that same normal form, up to alpha-equivalence. The diagram below is the reason this theorem is often referred to as the diamond property.
+\begin{center}
+\begin{tikzpicture}[node distance=2.5cm, every node/.style={font=\large}]
+  \node (t) at (0,0) {$M$};
+  \node (t1) at (-2,-2) {$N_1$};
+  \node (t2) at (2,-2) {$N_2$};
+  \node (t3) at (0,-4) {$N_3$};
+  \draw[->, thick] (t) -- (t1) node[midway, above left] {}; %{$\curly^*$};
+  \draw[->, thick] (t) -- (t2) node[midway, above right] {}; %{$\curly^*$};
+  \draw[->, dashed, thick] (t1) -- (t3) node[midway, below left] {}; %{$\curly^*$};
+  \draw[->, dashed, thick] (t2) -- (t3) node[midway, below right] {}; %{$\curly^*$};
+\end{tikzpicture}
+\end{center}
+\begin{note}
+  In simple terms, if the solid arrows exist, then the dashed arrows must exist too.
+\end{note}
 
 \subsection{\centering Some Important Constructions}
 
 Within the \lcalc \ there exist a number of conventional constructions that represent key ideas in programming (numbers, booleans, branching and lists among others) In the following we define a few of the most important ones. These constructions can be used to prove relevant statements concerning the expressiveness of the \lcalc.
 
-We begin defining $ \mathbb{N} $ for no particular reason other than the natural numbers are the foundation of most of computer science. The notion of natural numbers in the \lcalc \ follows from the Peano axioms:
+We begin defining $ \mathbb{N} $ for no particular reason. The notion of natural numbers in the \lcalc \ follows from the Peano axioms:
 \begin{definition} Peano Axioms, the set of natural numbers $\mathbb{N}$
 \begin{itemize}
 \item (Zero) \( 0 \in \NAT \)
@@ -405,7 +423,7 @@ The next constructions in line are the truth values of boolean logic, ``\textit{
     \texttt{IF} &\equiv \lambda b.\lambda t.\lambda e. b\,t\,e
   \end{align*}
 \end{definition}
-The reality of the \IF \ is that it is just a combinator that happens to behave as a branching operator whenever we pass a church encoded boolean as a first argument.
+The reality of the \IF \ is that it is just a combinator that happens to behave similarly to a branching statement whenever we pass a church encoded boolean as a first argument.
 \begin{example} On the correct behabiour of $\IF$ i.e. check that it implements branching. $ M, N \in \La $ and $ \IF, \TRUE, \FALSE$ are as usual:
   \[
     \begin{aligned}
@@ -613,11 +631,19 @@ To work arround this issue, several other combinators exist, one of the most not
 
 
 \newpage
-Turing combinator
+
+
+\end{document}
+
+\end{theorem}
+\begin{corollary}[Normalization]
+If a $\lambda$-term $t$ reduces to two normal forms $n_1$ and $n_2$, then they are alpha-equivalent:
 \[
-  \Theta \triangleq 
-  (\lambda x\, f.\, f\, (x\, x\, f))\, (\lambda x\, f.\, f\, (x\, x\, f))
+t \to_\beta^* n_1 \quad \text{and} \quad t \to_\beta^* n_2 \quad \text{and $n_1$, $n_2$ are normal} \quad \Rightarrow \quad n_1 =_\alpha n_2
 \]
+\end{corollary}
+
+
 
 \magenta{Turing completeness of the \lcalc}
 \begin{align*}
