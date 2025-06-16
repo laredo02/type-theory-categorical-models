@@ -11,13 +11,13 @@ def subst (t : Term) (x : String) (s : Term) : Term :=
   match t with
   | var y        => if y = x then s else var y
   | app t1 t2    => app (subst t1 x s) (subst t2 x s)
-  | lam y body   => 
+  | lam y body   =>
     if y = x then lam y body
     else lam y (subst body x s)
 
 /-- One-step beta reduction -/
 inductive beta : Term → Term → Prop where
-  | beta_step (x : String) (t s : Term) : 
+  | beta_step (x : String) (t s : Term) :
     beta (app (lam x t) s) (subst t x s)
   | app_l (t1 t1' t2 : Term) (h : beta t1 t1') :
     beta (app t1 t2) (app t1' t2)
@@ -33,7 +33,7 @@ inductive beta_star : Term → Term → Prop where
 
 /-- The Y combinator term: Y = λf.(λx.f (x x)) (λx.f (x x)) -/
 def Y : Term :=
-  lam "f" (app 
+  lam "f" (app
     (lam "x" (app (var "f") (app (var "x") (var "x"))))
     (lam "x" (app (var "f") (app (var "x") (var "x")))))
 
@@ -57,7 +57,7 @@ theorem fixed_point_theorem (f : Term) : fixed_point f (app Y f) := by
   -- Since beta_star is transitive and reflexive, we can chain these steps.
 
   -- Step 1: (Y f) →β (app (lam "x" (app f (app (var "x") (var "x")))) (lam "x" (app f (app (var "x") (var "x")))))
-  have step1 : beta (app Y f) (app (lam "x" (app f (app (var "x") (var "x")))) (lam "x" (app f (app (var "x") (var "x"))))) := 
+  have step1 : beta (app Y f) (app (lam "x" (app f (app (var "x") (var "x")))) (lam "x" (app f (app (var "x") (var "x"))))) :=
     beta.beta_step "f" (app (lam "x" (app f (app (var "x") (var "x")))) (lam "x" (app f (app (var "x") (var "x"))))) f
 
   -- Step 2: Apply beta to get f (Y f)
@@ -66,4 +66,3 @@ theorem fixed_point_theorem (f : Term) : fixed_point f (app Y f) := by
 
   -- Compose these two beta steps into beta_star steps
   apply beta_star.trans (app Y f) _ _ step1 (beta_star.trans _ _ _ step2 (beta_star.refl _))
-

@@ -294,7 +294,7 @@ We now explore a key aspect of the \lcalc, in the jargon referred to as first-cl
 Taking a closer look, $A$, applies $f$ twice to $x$, as a consequence, $B$ is being applied twice to $C$. And so, very easily, we have implemented the $ x + 2 $ function via a sequential application of $x + 1$ to $C$.
 \end{example}
 \begin{remark}
-  As seen above, we can pass what we understand as conventional functions as arguments since they are treated alike.  One can intuitively apreciate the computational expresivenes this brings with it, and how the sintactic-semantic homogeneity sets the \lcalc \ apart from the classical set-theoretic approach to functions.
+  As seen above, we can pass what we understand as conventional functions as arguments since they are treated alike.  One can intuitively apreciate the computational expresivenes this brings with it, and how this sintactic-semantic homogeneity sets the \lcalc \ apart from the classical set-theoretic approach to functions.
 \end{remark}
 
 \begin{theorem} The Church-Rosser Property states that $\forall M, N_1, N_2 \in \La$:
@@ -535,7 +535,7 @@ that binds a new element $h$ to to an pre-existing list or to \NIL.
 \magenta{Reintroduce the question from before}
 From the Church Rosser Property of confluence, we know that whenever a term has a normal form, this normal form must be unique. We still have not given an answer to whether all \lterms \ have a normal form.
 
-The most straight forward way to test this, is to check whether there exists some term that reduces to itself, effectively creating a loop in the $\beta$-reduction chain so to speak. In more formal terms this means \( M \curly^n M \) with $ n > 0 $. It turns out \( \Omega \equiv (\la x . \, x \, x) (\la x . \, x \, x) \) fullfills this requirement. Let us inspect what goes on as we keep $\beta$-reducing this term:
+The most straight forward way to test this, is to check whether there exists some term that reduces to itself, effectively creating a loop in the $\beta$-reduction chain so to speak. In more formal terms this means there exists some $M$ such that \( M \curly^n M \) with $ n > 0 $. It turns out \( \Omega \equiv (\la x . \, x \, x) (\la x . \, x \, x) \) fullfills this requirement. Let us inspect what goes on while $\beta$-reducing this term:
 \[
   \Omega \equiv (\la x . \, x \, x) (\la x . \, x \, x) \curly (\la x . \, x \, x) (\la x . \, x \, x) \curly^* (\la x . \, x \, x) (\la x . \, x \, x) \equiv \Omega
 \]
@@ -573,7 +573,7 @@ This harmless idea satisfies an interesting property, namely that $ x = f(x) = f
 \begin{definition}
   Given a lambda term \( L \in \La \), a term \( M \in \La \) is called a fixed point of \( L \) if \( M =_\beta L M \).
 \end{definition}
-No surprises here, the definition is close to a one-to-one mapping of its functional counterpart seen previously. To our surprise, it turns out that every lambda term has a fixed point, as stated in the theorem below:
+No surprises here, the definition is close to a one-to-one mapping of its functional counterpart seen previously. Interestingly enough, it turns out that every lambda term has a fixed point, as stated in the theorem proven below:
 \begin{theorem}
   For every \( L \in \La \), there exists \( M \in \La \) such that $ M $ is a fixed point for $ M $ i.e. $ M =_\beta L M $. Referred to as the Fixed Point Theorem in the literature.
 \end{theorem}
