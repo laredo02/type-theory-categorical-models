@@ -18,10 +18,12 @@
 \usepackage{xcolor}
 \usepackage{etoolbox}
 
+
 \definecolor{refcolor}{RGB}{0, 0, 0}  % Adjust RGB as needed for reddish-orange
 \newcommand{\myref}[1]{\textcolor{refcolor}{\hyperref[#1]{\ref*{#1}}}}
 \newcommand{\subst}[2]{[#1 := #2]}    % Substitution
 \newcommand{\step}{\curly} % One-step beta reduction
+\newcommand{\etaequiv}{$\eta$-equivalence} % One-step beta reduction
 \newcommand{\lam}[2]{\lambda #1.\,#2} % Lambda abstraction
 \newcommand{\app}[2]{#1.\,#2} % Lambda abstraction
 \newcommand{\abs}[2]{\la #1.\,#2} % Lambda abstraction
@@ -120,34 +122,8 @@ Abs "x" (App (Var "x") (Var "x"))
 \end{example}
 As a convention to avoid notational cluttering, the outermost parenthesis can be omitted e.g. $ ( \la x.x ) $ can be read as $ \la x.x $. Also, application is left-associative  and binds tighter than abstraction, so $M N P$ is parsed as $(M N) P$ and $\la x . M N$ means $\la x . (M N)$, not $(\la x . M) N$. Likewise, abstraction is right-associative e.g. $\la x . \la y . M$ is $\la x . (\la y . M)$ and binds more weakly than application. All these are just to keep notation straight-forward, the formal definition does not leave precedence under-specified thanks to parenthesis. Those interested in the Haskell implementation need not worry, as Haskell enforces an explicit order on constructors.
 \subsection{\centering Equivalence of terms}
-Having defined the language of the \lcalc, we move on to the mechanics of computation. To this end, several equivalence relations among terms will be defined. Let us begin by introducing the set that contains all variables that are not bound to the term via an abstraction.
-\begin{definition} Given $T \in \La $, $\functionfont{FV} : \La \to \mathcal{P}(\Vset) $ outputs the set of free variables for $T$:
-  \begin{align*}
-    & \FV x = {x}\\
-    & \FV {MN} = \FV M \cup \FV N \\
-    & \FV {\lambda x . M} = \FV M \setminus \{x\}
-  \end{align*}
-  Where $ x \in \Vset $ and $ M, N \in \La $, and $\mathcal{P}$ denotes the power set.
-  \begin{lstlisting}[style=haskellstyle,caption={Implementation of FV in Haskell.}]
-FV :: Term -> Set String
-FV (Var x)     = Set.singleton x
-FV (App t1 t2) = Set.union (FV t1) (FV t2)
-FV (Abs x t)   = Set.delete x (FV t)
-  \end{lstlisting}
-\end{definition}
-\begin{example} Computing the free variables of $\lambda x . \lambda y . y x z$. The term well-formed, so we proceed:
-  \begin{align*}
-    \FV {\lambda x . \lambda y . y x z} &= \FV {\lambda y . yxz} \setminus \{x\} \\
-                                        &= \FV {yxz} \setminus \{x, y\} \\
-                                        &= \{x, y, z\} \setminus \{x, y\} \\
-                                        &= \{z\}
-  \end{align*}
-  Of course, $z$ is the only free variable in the expression as it is the only variable that is not captured by some $\la$-abstraction.
-\end{example}
-\begin{definition}
-  A term $M \in \La$ is closed if and only if $\FV M = \emptyset$, closed lambda terms are often referred to as combinators. $\La^0$ is the set of all closed lambda terms.
-\end{definition}
-Since every lambda term is made up of other smaller lambda terms, it is only natural to define the set that contains all subterms of a given term:
+Having defined the language of the \lcalc, we move on to the mechanics of computation. To this end, several equivalences among terms will be defined, namely \aequiv, \bequiv, and \etaequiv
+. Every lambda term is made up of other smaller lambda terms, so it is only natural to define the set that contains all subterms of a given term:
 \begin{definition} Given $T \in \La$, $\functionfont{Sub} : \La \to \mathcal{P}(\Vset)$ maps a term to the set of it's subterms.
   \begin{align*}
     &\Sub x = \{x\} \\
@@ -175,12 +151,46 @@ Sub a@(Abs _ t)   = Set.insert a (Sub t)
   \begin{itemize}
   \item The variable \( x \) is the binding variable of the abstraction \( \lambda x. N \).
   \item An occurrence of a variable \( x \) in \( M \) is bound if \( x \in \Sub { \lambda x. N } \).
+  \item Free variables are those that are not bound.
   \end{itemize}
 \end{definition}
+\begin{example}
+  Take $ M \equiv \la x . \, x \, y $, in this example, the $x$ in $\la x. $ is binding, $y$ is free, and $x$ is bound. This means that $y$ is used literally, and that $x$, as denoted by $\la x.$ is abstracted and thus subject to being replaced within the context of said abtraction. A subexample might make this explicit: $ (\la x . \, x \, y) \, M \curly M \, y $. The $y$ remained while the $x$ was used as a placeholder for $M$.
+\end{example}
+\begin{remark}
+  This taxonomy is key to understanding concepts such as \aequiv \ intuitively.
+\end{remark}
+The set of Free Variables $\functionfont{FV}$, those that will not get replaced during the process of reduction, is computed using:
+\begin{definition} Given $T \in \La $, $\functionfont{FV} : \La \to \mathcal{P}(\Vset) $ outputs the set of free variables for $T$:
+  \begin{align*}
+    & \FV x = \{x\}\\
+    & \FV {MN} = \FV M \cup \FV N \\
+    & \FV {\lambda x . M} = \FV M \setminus \{x\}
+  \end{align*}
+  Where $ x \in \Vset $ and $ M, N \in \La $, and $\mathcal{P}$ denotes the power set.
+  \begin{lstlisting}[style=haskellstyle,caption={Implementation of FV in Haskell.}]
+FV :: Term -> Set String
+FV (Var x)     = Set.singleton x
+FV (App t1 t2) = Set.union (FV t1) (FV t2)
+FV (Abs x t)   = Set.delete x (FV t)
+  \end{lstlisting}
+\end{definition}
+\begin{example} Computing the free variables of $\lambda x . \lambda y . y x z$. The term well-formed, so we proceed:
+  \begin{align*}
+    \FV {\lambda x . \lambda y . y x z} &= \FV {\lambda y . yxz} \setminus \{x\} \\
+                                        &= \FV {yxz} \setminus \{x, y\} \\
+                                        &= \{x, y, z\} \setminus \{x, y\} \\
+                                        &= \{z\}
+  \end{align*}
+  Of course, $z$ is the only free variable in the expression as it is the only variable that is not captured by some $\la$-abstraction.
+\end{example}
+\begin{definition}
+  A term $M \in \La$ is closed if and only if $\FV M = \emptyset$, closed lambda terms are often referred to as combinators. $\La^0$ is the set of all closed lambda terms.
+\end{definition}
+\begin{note} They are called combinators since having no free variables means that all variables are bound, and thus, a closed term just combines bound variables.
+\end{note}
 
-\magenta{Binding vs bound vs free variables. alpha equiv ultimately means replacing names of bound variables i.e. variables that are used as placeholders for terms so we dont care about renaming them}
-
-\magenta{Intro to the notion of alpha equivalence}
+We aproach the definition for \aequiv \, to this end we have to introduce what it means to substitute a variable.
 
 \begin{definition}Capture-Avoiding Substitution Rules
   Let \( M, N \in \La \) and \( x, y, z \in \Vset \). The substitution \( M[x := N] \) is defined inductively as:
@@ -200,7 +210,6 @@ Sub a@(Abs _ t)   = Set.insert a (Sub t)
   \end{lstlisting}
 \end{definition}
 \magenta{\begin{itemize}
-  \item De Bruijin
   \item Add insight and intuition upon the formal definition
   \item Add some haskell implementation details
   \end{itemize}}
@@ -210,22 +219,33 @@ Sub a@(Abs _ t)   = Set.insert a (Sub t)
     \lam{x}{M} =_\alpha \lam{y}{M\subst{x}{y}}
     % \quad \text{if } y \notin \FV { M } 
   \]
-  Alpha-equivalence posseses the following properties:
+  Alpha-equivalence is an equivalence relation:
   \[
     \begin{aligned}
-      M &=_\alpha M \\
-      M &=_\alpha N \Rightarrow N =_\alpha M \\ 
-      M &=_\alpha N \text{ and } N =_\alpha P \Rightarrow M =_\alpha P
+      &(Reflexivity) \quad && M =_\alpha M \\
+      &(Symetry) \quad && M =_\alpha N \Rightarrow N =_\alpha M \\ 
+      &(Transitivity) \quad && M =_\alpha N \text{ and } N =_\alpha P \Rightarrow M =_\alpha P
     \end{aligned}
   \]
-  And thus, is an equivalence relation.
 \end{definition}
-\magenta{
-  \begin{itemize}
-    \item Examples \begin{example}\end{example} ... \aequiv \ relations
-    \item This relation is the most horizontal of the ones that show up in the text. By this I mean it just relates terms with equivalent terms at the same level in the \bred \ tree. (find a way to say this without having introduced \bred \ yet)
-  \end{itemize}
-}
+\begin{example} A simple equivalence class and two samples of not $\alpha$-equivalent \ pairs.
+  \[
+    \la x.\la y. \, y =_\alpha \la a.\la b. \, b =_\alpha \la z.\la x. \, x
+  \]
+  \[
+    \la x. \la y. \, x \not=_\alpha \la x. \la y. \, y \quad \la x. \, x \, y \not=_\alpha \la x. \, x \, z 
+  \]
+  Remember terms are \aequiv \ only when bounded names are properly substituted.
+\end{example}
+\begin{remark}
+  \aequiv \ comes naturally once substitution is defined, since the names of bound variables are just placeholders whose only purpuse is to get replaced.
+\end{remark}
+Naming variables can be a nightmare, which is why there exists a way of methodically assigning numbers to variables in a way that eliminates the need for \aequiv. These naming system works by using numeric indices that indicate how many binders away a variable’s binder is. These indices are called De Bruijn indeces.
+\[
+  \la x.\, x \Rightarrow \la.\, 0 \quad \la x.\, \la y.\, x \Rightarrow \la.\, \la.\, 1 \quad \la x.\, \la y.\, y \Rightarrow \la.\, \la.\,
+\]
+It turns out we are better at naming variables than at working with numbers, which is why we will stick to symbols and leave De Bruijn indices to computers. Programs like automated theorem provers do use this naming strategy to simplify their work.
+
 \begin{definition} Single-step $\beta$-reduction $\step$ is defined using the following inference rules:
 \[
 \begin{array}{@{}l@{\quad}l@{}}
@@ -250,13 +270,8 @@ where \( M, N \in \La \). For those not familiar with inference rules, here is a
 \item \( (\lam{x}{M})\,N \step M\subst{x}{N} \)
 \item If $M \step N$, then: \( M\,L \step N\,L; L\,M \step L\,N; \lam{x}{M} \step \lam{x}{N} \)
 \end{itemize}
-\end{definition}
-\magenta{
-  Here, The Beta rule abstracts the concept of reduction, that encapsulates the idea of computation within the \lcalc. The reason for this is that Beta reduces an application of an abstraction and removes the abstraction, hence simplifying the term. 
-}
-
+\end{definition} 
 Single \bred s can be applied succesively, which induces the following definition
-
 \begin{definition} Zero or more step \bred, also called reflexive transitive closure. We write $M \step^* N$ if and only if there exists a sequence of one-step $\beta$-reductions starting from $M$ and ending at $N$.\footnote{The convention in the literature is to use $\rightarrow_\beta$ for \bred s $\twoheadrightarrow_\beta$ for multi-step \bred s. I prefer to use $\curly$ and $\curly^n$ since this allows me to use the superscript to note the number of steps in the process \bred \ e.g. $ (\la f. \la x . \, x) \, M \, N \curly^2 $ N. Instead of $\curly^n$ I use $\curly^*$ whenever the number of steps is undefined.}
   \label{def:zero-more-bred}
   \[
@@ -303,28 +318,35 @@ Taking a closer look, $A$, applies $f$ twice to $x$, as a consequence, $B$ is be
   \]
   If a lambda term $M$ has a normal form, then every reduction sequence starting from $M$ eventually reduces to that same normal form, up to alpha-equivalence. The diagram below is the reason this theorem is often referred to as the diamond property.
 \begin{center}
-\begin{tikzpicture}[node distance=2.5cm, every node/.style={font=\large}]
+\begin{tikzpicture}[node distance=2.0cm, every node/.style={font=\large}]
   \node (t) at (0,0) {$M$};
-  \node (t1) at (-2,-2) {$N_1$};
-  \node (t2) at (2,-2) {$N_2$};
-  \node (t3) at (0,-4) {$N_3$};
+  \node (t1) at (-1.5,-1.5) {$N_1$};
+  \node (t2) at (1.5,-1.5) {$N_2$};
+  \node (t3) at (0,-3) {$N_3$};
   \draw[->, thick] (t) -- (t1) node[midway, above left] {}; %{$\curly^*$};
   \draw[->, thick] (t) -- (t2) node[midway, above right] {}; %{$\curly^*$};
   \draw[->, dashed, thick] (t1) -- (t3) node[midway, below left] {}; %{$\curly^*$};
   \draw[->, dashed, thick] (t2) -- (t3) node[midway, below right] {}; %{$\curly^*$};
 \end{tikzpicture}
 \end{center}
-\begin{note}
-  In simple terms, if the solid arrows exist, then the dashed arrows must exist too.
-\end{note}
+The proof to this theorem is a quite lengthy, we would be miss the point
+of this document if we were to introduce it [ChurchRosser].
 \end{theorem}
-\begin{corollary} Normalization: If a $\lambda$-term $t$ reduces to two normal forms $n_1$ and $n_2$, then they are alpha-equivalent:
+\begin{corollary} Normalization: If a $\lambda$-term $M$ reduces to two normal forms $N_1$ and $N_2$, then they are alpha-equivalent:
 \[
-t \to_\beta^* n_1 \quad \text{and} \quad t \to_\beta^* n_2 \quad \text{and $n_1$, $n_2$ are normal} \quad \Rightarrow \quad n_1 =_\alpha n_2
+M \to_\beta^* N_1 \ \ \text{and} \ \ M \to_\beta^* N_2 \ \ \text{and $N_1$, $N_2$ are normal} \ \ \Rightarrow \ \ N_1 =_\alpha N_2
 \]
 \end{corollary}
+\magenta{we introduced beta reductions i.e. intensional equivalence, what about extensionality?}
 
-
+The last and indeed the least important notion of equivalence:
+\begin{definition} Two lambda terms \( M \) and \( N \) are said to be $\eta$-equivalent, written \( M =_\eta N \), if:
+  \[
+    \lambda x.\, (M\;x) =_\eta M \quad x \notin \FV M 
+  \]
+  The abstraction \( \lambda x.\, (M\;x) \) performs the same operation as \( M \), so if \( x \) is not used freely within \( M \), the abstraction is redundant.
+\end{definition}
+$\eta$-equivalence represents weak extensionality, since it does not encode observational equivalence. Two terms are observationally equivalent if they cannot be distinguished by any context that can be applied to them.
 \subsection{\centering Some Important Constructions}
 
 Within the \lcalc \ there exist a number of conventional constructions that represent key ideas in programming (numbers, booleans, branching and lists among others) In the following we define a few of the most important ones. These constructions can be used to prove relevant statements concerning the expressiveness of the \lcalc.
