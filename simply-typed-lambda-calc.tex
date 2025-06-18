@@ -1,0 +1,12 @@
+
+\section{\centering Simply Typed \lCalc}
+\orange{
+The Untyped Lambda Calculus in computationally equivalent to a  Turing machine. However, with great computational power comes limited decidability of properties, leading to non-termination, or expressions such as $x(\lambda y . y)$, whose meaning is unclear.
+A classic example of non-termination is the $Y$ combinator, however, the Simply Typed Lambda Calculus does not allow such expressions, as its type system is unable to assign a valid type to them.
+\magenta{if there is a proof of turing completeness, add how if we remove combinators then we remove turing completeness i.e. finite tape $\neq$ turing complete}
+To understand why, consider the role of function types: in the world of functions, a function maps values from a domain to a range. The Simply Typed Lambda Calculus enforces this structure explicitly, ensuring that every function application is well-typed and preventing self-application patterns that would lead to paradoxes or infinite loops.
+Having grasped the untyped lambda calculus's Turing completeness and ability to compute all computable functions, we now seek properties related to decidability. To this end, we introduce the simply typed lambda calculus. Although it possesses less computational power than its untyped counterpart, it offers attractive features regarding decidability that will be useful later on.
+}
+
+
+

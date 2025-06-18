@@ -15,14 +15,28 @@
 \usepackage{enumitem}
 \usepackage{listings}
 \usepackage{xcolor}
-
-% Define Haskell colors
+\usepackage{stmaryrd}
+\usepackage{bussproofs}
+\usepackage{amsmath,amssymb}
+\usepackage{mathtools}
+\usepackage{stmaryrd}
+\usepackage{mathpartir}
+\usepackage{tikz}
+\usetikzlibrary{positioning, arrows.meta}
+\definecolor{refcolor}{RGB}{0, 0, 0}
+\usepackage[
+  colorlinks=true,
+  linkcolor=refcolor,
+  citecolor=refcolor,
+  urlcolor=refcolor,
+  pdfborder={0 0 0}
+]{hyperref}
+\usepackage{xcolor}
+\usepackage{etoolbox}
 \definecolor{keywordcolor}{rgb}{0.0,0.2,0.6}
 \definecolor{commentcolor}{rgb}{0.3,0.5,0.3}
 \definecolor{stringcolor}{rgb}{0.5,0.1,0.1}
 \definecolor{bgcolor}{rgb}{0.95,0.95,0.95}
-
-% Haskell listing style
 \lstdefinelanguage{Haskell}{
   morekeywords={
     case,class,data,default,deriving,do,else,if,import,in,infix,infixl,
@@ -54,7 +68,6 @@
 \newcommand{\La}{\mathbf{\Lambda}}
 \newcommand{\Vset}{\mathbf{V}}
 \newcommand{\NAT}{\mathbb{N}}
-
 \newcommand{\IF}{\texttt{IF}}
 \newcommand{\SUCC}{\texttt{SUCC}}
 \newcommand{\TRUE}{\texttt{TRUE}}
@@ -66,7 +79,6 @@
 \newcommand{\NOT}{\texttt{NOT}}
 \newcommand{\AND}{\texttt{AND}}
 \newcommand{\OR}{\texttt{OR}}
-
 \newcommand{\cat}[1]{\mathbf{#1}}
 \newcommand{\Hom}{\mathrm{Hom}}
 \newcommand{\id}{\mathrm{id}}
@@ -77,7 +89,6 @@
 \newcommand{\Grp}{\cat{Grp}}
 \newcommand{\Fun}{\mathrm{Fun}}
 \newcommand{\op}{^{\mathrm{op}}}
-
 \newcommand{\lCalc}{$\la$-Calculus}
 \newcommand{\lcalc}{$\la$-calculus}
 \newcommand{\bred}{$\beta$-reduction}
@@ -93,7 +104,20 @@
 \newcommand{\Subb}{\functionfont{Sub}}
 \newcommand{\FV}[1]{\functionfont{FV}(#1)}
 \newcommand{\FVV}{\functionfont{FV}}
-
+\newcommand{\orange}[1]{\textcolor{orange}{#1}}
+\newcommand{\magenta}[1]{\textcolor{magenta}{#1}}
+\newcommand{\blue}[1]{\textcolor{blue}{#1}}
+\newcommand{\green}[1]{\textcolor{green}{#1}}
+\newcommand{\myref}[1]{\textcolor{refcolor}{\hyperref[#1]{\ref*{#1}}}}
+\newcommand{\subst}[2]{[#1 := #2]}
+\newcommand{\step}{\curly}
+\newcommand{\etaequiv}{$\eta$-equivalence}
+\newcommand{\lam}[2]{\lambda #1.\,#2}
+\newcommand{\app}[2]{#1.\,#2}
+\newcommand{\abs}[2]{\la #1.\,#2}
+\newcommand{\curlysym}{\mathrel{\leftrightarrow}_\beta}
+\renewcommand{\arraystretch}{1.2}
+\setlength{\tabcolsep}{12pt}
 
 \theoremstyle{definition}
 \newtheorem{theorem}{Theorem}[section]
@@ -104,47 +128,6 @@
 \newtheorem{remark}{Remark}
 \newtheorem{proposition}[theorem]{Proposition}
 \newtheorem{note}{Note}
-
-\newcommand{\orange}[1]{\textcolor{orange}{#1}}
-\newcommand{\magenta}[1]{\textcolor{magenta}{#1}}
-\newcommand{\blue}[1]{\textcolor{blue}{#1}}
-\newcommand{\green}[1]{\textcolor{green}{#1}}
-
-
-\usepackage{stmaryrd}  % for \mapstochar
-\usepackage{bussproofs} % inference rules
-\usepackage{amsmath,amssymb}
-\usepackage{mathtools}
-\usepackage{stmaryrd}
-\usepackage{mathpartir} % for inference rules
-\usepackage{tikz}
-\usetikzlibrary{positioning, arrows.meta} % REQUIRED for 'right=of' and arrow styles
-\usepackage[
-  colorlinks=true,
-  linkcolor=refcolor,    % Use your custom reddish-orange
-  citecolor=refcolor,
-  urlcolor=refcolor,
-  pdfborder={0 0 0}      % Removes the box around links
-]{hyperref}
-\usepackage{xcolor}
-\usepackage{etoolbox}
-
-
-\definecolor{refcolor}{RGB}{0, 0, 0}  % Adjust RGB as needed for reddish-orange
-\newcommand{\myref}[1]{\textcolor{refcolor}{\hyperref[#1]{\ref*{#1}}}}
-\newcommand{\subst}[2]{[#1 := #2]}    % Substitution
-\newcommand{\step}{\curly} % One-step beta reduction
-\newcommand{\etaequiv}{$\eta$-equivalence} % One-step beta reduction
-\newcommand{\lam}[2]{\lambda #1.\,#2} % Lambda abstraction
-\newcommand{\app}[2]{#1.\,#2} % Lambda abstraction
-\newcommand{\abs}[2]{\la #1.\,#2} % Lambda abstraction
-\newcommand{\curlysym}{\mathrel{\leftrightarrow}_\beta}
-\renewcommand{\arraystretch}{1.2} % increase vertical padding (default is 1)
-
-\setlength{\tabcolsep}{12pt} % horizontal padding
-
-
-
 
 \bibliographystyle{alpha}
 
