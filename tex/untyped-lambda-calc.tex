@@ -10,9 +10,8 @@ In order to get acquainted with the \lcalc, let us develop a simple example to f
   \end{itemize}
   Where $\Vset = \{x, y, z, ... \}$ represents a countably infinite set of variable names.
 \end{definition}
+  
 The key takeaway of this definition is that abstraction and application together, when combined with \bred, enable computation—thus encapsulating the meaning of function in a way that is abstract yet useful.
-
-
 
 Since we are dealing with a formal language, it is in our benefit to introduce a few other objects with the aim of defining a grammar to generate the set $\La$:
 \begin{itemize}
@@ -41,12 +40,7 @@ Thus, the language for natural numbers in decimal notation is represented using:
                     &\;\texttt{|}\; \texttt{"("}\ \texttt{<term>}\ \texttt{<term>}\ \texttt{")"} \\
     \texttt{<variable>} &\;\texttt{::}\in \Vset
   \end{align*}
-  where \( \Sigma = \{ \la, ., (, )\} \cup \Vset \) and \( \La \subset \Sigma^* \). Through use of algebraic types \footnote{Algebraic Data Types are inductively defined types built from sums (either this or that) of products (this and that). They let you define structured data with multiple forms and support safe, exhaustive pattern matching. }, this grammar can be implemented in Haskell:
-  \begin{lstlisting}[style=haskellstyle,caption={Grammar implementation of the \lcalc \ language using Haskell's algebraic types}]
-data Term = Var String
-          | App Term Term
-          | Abs String Term
-\end{lstlisting}
+  where \( \Sigma = \{ \la, ., (, )\} \cup \Vset \) and \( \La \subset \Sigma^* \). Through use of inductive types types\footnote{Inductive Data Types are inductively defined types built from sums (either this or that) of products (this and that). They let you define structured data with multiple forms and support safe, exhaustive pattern matching. }, this grammar can be implemented in Lean4:
 
 \end{definition}
 \begin{remark}
@@ -57,12 +51,9 @@ data Term = Var String
   \( (\la x. (x x)) \),
   \( (\la x. (\la y. x)) \),
   \( (((\la x. (x y)) (\la y. y)) z) \).
-  The haskell counterpart for the second term is:
-  \begin{lstlisting}[style=haskellstyle,caption={Haskell interpretation of the second term}]
-Abs "x" (App (Var "x") (Var "x"))
-  \end{lstlisting}
+  The Lean4 counterpart for the second term is:
 \end{example}
-As a convention to avoid notational cluttering, the outermost parenthesis can be omitted e.g. $ ( \la x.x ) $ can be read as $ \la x.x $. Also, application is left-associative  and binds tighter than abstraction, so $M N P$ is parsed as $(M N) P$ and $\la x . M N$ means $\la x . (M N)$, not $(\la x . M) N$. Likewise, abstraction is right-associative e.g. $\la x . \la y . M$ is $\la x . (\la y . M)$ and binds more weakly than application. All these are just to keep notation straight-forward, the formal definition does not leave precedence under-specified thanks to parenthesis. Those interested in the Haskell implementation need not worry, as Haskell enforces an explicit order on constructors.
+As a convention to avoid notational cluttering, the outermost parenthesis can be omitted e.g. $ ( \la x.x ) $ can be read as $ \la x.x $. Also, application is left-associative  and binds tighter than abstraction, so $M N P$ is parsed as $(M N) P$ and $\la x . M N$ means $\la x . (M N)$, not $(\la x . M) N$. Likewise, abstraction is right-associative e.g. $\la x . \la y . M$ is $\la x . (\la y . M)$ and binds more weakly than application. All these are just to keep notation straight-forward, the formal definition does not leave precedence under-specified thanks to parenthesis. Those interested in the implementation need not worry, as Lean4 enforces an explicit order on constructors.
 \subsection{\centering Equivalence of terms}
 Having defined the language of the \lcalc, we move on to the mechanics of computation. To this end, several equivalences among terms will be defined, namely \aequiv, \bequiv, and \etaequiv
 . Every lambda term is made up of other smaller lambda terms, so it is only natural to define the set that contains all subterms of a given term:
@@ -73,12 +64,7 @@ Having defined the language of the \lcalc, we move on to the mechanics of comput
     &\Sub {\la x . M} = \Sub M  \cup \{\la x. M\}
   \end{align*}
   Where $x \in \Vset$ and $M, N \in \La $.
-  \begin{lstlisting}[style=haskellstyle,caption={Haskell implementation of Sub.}]
-Sub :: Term -> Set Term
-Sub v@(Var _)     = Set.singleton v
-Sub a@(App t1 t2) = Set.insert a (Set.union (Sub t1) (Sub t2))
-Sub a@(Abs _ t)   = Set.insert a (Sub t)
-  \end{lstlisting}
+
 \end{definition}
 \begin{remark}
   Let \( \preceq \) be the subterm relation on \lterms, defined by
@@ -110,12 +96,7 @@ The set of Free Variables $\functionfont{FV}$, those that will not get replaced 
     & \FV {\lambda x . M} = \FV M \setminus \{x\}
   \end{align*}
   Where $ x \in \Vset $ and $ M, N \in \La $, and $\mathcal{P}$ denotes the power set.
-  \begin{lstlisting}[style=haskellstyle,caption={Implementation of FV in Haskell.}]
-FV :: Term -> Set String
-FV (Var x)     = Set.singleton x
-FV (App t1 t2) = Set.union (FV t1) (FV t2)
-FV (Abs x t)   = Set.delete x (FV t)
-  \end{lstlisting}
+
 \end{definition}
 \begin{example} Computing the free variables of $\lambda x . \lambda y . y x z$. The term well-formed, so we proceed:
   \begin{align*}
@@ -147,21 +128,39 @@ We aproach the definition for \aequiv \, to this end we have to introduce what i
     \end{aligned}
   \]
   where \( z \notin \FV { M } \cup \FV { N } \).
-  \begin{lstlisting}[style=haskellstyle,caption={asdasdasd}]
-
-  \end{lstlisting}
 \end{definition}
-\magenta{\begin{itemize}
-  \item Add insight and intuition upon the formal definition
-  \item Add some haskell implementation details
-  \end{itemize}}
+Hopefully the meaning of the first three rules is clear, they ancapsulate renaming in the context of variables and applications. The subsequent rules are about abstractions, rule four states that renaming a binding variable has no effect, renaming only modifies a term whenever the renamed variable is different from the binding variable. Rule five is the general case, that is, when the substitution just moves in together with the abstracted term. Then there is the last case, when the binding variable is a bound occurrence in the term we are substituting, which poses a problem, to see why, let us work through an example:
+\begin{example} If by mistake we substitute $x$ by \( (\la w . \, w \, y) \) in \( (\la y . \, y \, x ) \) using rule five, we get:
+  \[
+    (\la y . \, y x) [x := (\la w . \, w \, y)] = (\la y . \, y \, (\la w. \, w \, y))
+  \]
+  We run into a problem. See that the free variable $y$ became bound after the rename. Free and bound variables should mantain their freedom or their boundedness after the rename, hence the need for rule 6, where we rename the binding variable to avoid the name clash:
+  \[
+    (\la y . \, y x) [x := (\la w . \, w \, y)] = (\la z . \, z \, (\la w. \, w \, y))
+  \]
+  
+\end{example}
 \begin{definition} Two lambda terms \( M, N \in \La \) are \aequivlt, written \( M =_\alpha N \), if they are structurally identical except for the names of bound variables.
   Formally:
   \[
-    \lam{x}{M} =_\alpha \lam{y}{M\subst{x}{y}}
-    % \quad \text{if } y \notin \FV { M } 
+    \begin{array}{@{}l@{\quad}l@{}}
+      \inferrule*[right=\textsc{Alpha}]
+      { }
+      { \lam{x}{L} =_\alpha \la y . \, L \subst{x}{y} }
+      &
+        \inferrule*[right=\textsc{Abs}]
+        { L =_\alpha L' }
+        { \lam{x}{L} =_\alpha \lam{x}{L'} } \\[2ex]
+      \inferrule*[right=\textsc{AppL}]
+      { L_1 =_\alpha L_1' }
+      { L_1\,L_2 =_\alpha L_1'\,L_2 }
+      &
+        \inferrule*[right=\textsc{AppR}]
+        { L_2 =_\alpha L_2' }
+        { L_1\,L_2 =_\alpha L_1\,L_2' }
+    \end{array}
   \]
-  Alpha-equivalence is an equivalence relation:
+  $\alpha$-equivalence is an equivalence relation:
   \[
     \begin{aligned}
       &(Reflexivity) \quad && M =_\alpha M \\
@@ -177,14 +176,14 @@ We aproach the definition for \aequiv \, to this end we have to introduce what i
   \[
     \la x. \la y. \, x \not=_\alpha \la x. \la y. \, y \quad \la x. \, x \, y \not=_\alpha \la x. \, x \, z 
   \]
-  Remember terms are \aequiv \ only when bounded names are properly substituted.
+  Remember terms are $\alpha$-equivalent \ only when bounded names are properly substituted.
 \end{example}
 \begin{remark}
   \aequiv \ comes naturally once substitution is defined, since the names of bound variables are just placeholders whose only purpuse is to get replaced.
 \end{remark}
 Naming variables can be a nightmare, which is why there exists a way of methodically assigning numbers to variables in a way that eliminates the need for \aequiv. These naming system works by using numeric indices that indicate how many binders away a variable’s binder is. These indices are called De Bruijn indeces.
 \[
-  \la x.\, x \Rightarrow \la.\, 0 \quad \la x.\, \la y.\, x \Rightarrow \la.\, \la.\, 1 \quad \la x.\, \la y.\, y \Rightarrow \la.\, \la.\,
+  \la x.\, x \Rightarrow \la.\, 0 \quad \la x. \la y.\, x \Rightarrow \la. \la.\, 1 \quad \la x. \la y.\, y \Rightarrow \la. \la. \, 0\,
 \]
 It turns out we are better at naming variables than at working with numbers, which is why we will stick to symbols and leave De Bruijn indices to computers. Programs like automated theorem provers do use this naming strategy to simplify their work.
 
@@ -279,31 +278,27 @@ of this document if we were to introduce it [ChurchRosser].
 M \to_\beta^* N_1 \ \ \text{and} \ \ M \to_\beta^* N_2 \ \ \text{and $N_1$, $N_2$ are normal} \ \ \Rightarrow \ \ N_1 =_\alpha N_2
 \]
 \end{corollary}
-\magenta{we introduced beta reductions i.e. intensional equivalence, what about extensionality?}
-
 The last and indeed the least important notion of equivalence:
 \begin{definition} Two lambda terms \( M \) and \( N \) are said to be $\eta$-equivalent, written \( M =_\eta N \), if:
   \[
-    \lambda x.\, (M\;x) =_\eta M \quad x \notin \FV M 
-  \]
-  \[
 \begin{array}{@{}l@{\quad}l@{}}
-  \inferrule*[right=\textsc{Beta}]
-    { }
-    { (\lam{x}{M})\,N \step M\subst{x}{N} }
+  \inferrule*[right=\textsc{Eta}]
+  { x \notin \FV M }
+  { (\lam{x}{M}) =_\eta M   }
   &
   \inferrule*[right=\textsc{Abs}]
-    { M \step M' }
-    { \lam{x}{M} \step \lam{x}{M'} } \\[2ex]
+    { M =_\eta M' }
+    { \lam{x}{M} =_\eta \lam{x}{M'} } \\[2ex]
   \inferrule*[right=\textsc{AppL}]
-    { M_1 \step M_1' }
-    { M_1\,M_2 \step M_1'\,M_2 }
+    { M_1 =_\eta M_1' }
+    { M_1\,M_2 =_\eta M_1'\,M_2 }
   &
   \inferrule*[right=\textsc{AppR}]
-    { M_2 \step M_2' }
-    { M_1\,M_2 \step M_1\,M_2' }
+    { M_2 =_\eta M_2' }
+    { M_1\,M_2 =_\eta M_1\,M_2' }
 \end{array}
 \]
+
   The abstraction \( \lambda x.\, (M\;x) \) performs the same operation as \( M \), so if \( x \) is not used freely within \( M \), the abstraction is redundant.
 \end{definition}
 $\eta$-equivalence represents weak extensionality, since it does not encode observational equivalence. Two terms are observationally equivalent if they cannot be distinguished by any context that can be papplied to them.

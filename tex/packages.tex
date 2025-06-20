@@ -1,6 +1,8 @@
 
-\usepackage[a4paper, margin=4cm]{geometry}
+\usepackage[a4paper, margin=3cm]{geometry}
 \usepackage[english]{babel}
+\usepackage[utf8]{inputenc}
+% \usepackage{bookman}
 \usepackage{amsmath}
 \usepackage{amssymb}
 \usepackage{amsthm}
@@ -22,6 +24,8 @@
 \usepackage{stmaryrd}
 \usepackage{mathpartir}
 \usepackage{tikz}
+%\usepackage{minted}
+%\usemintedstyle{bw}
 \usetikzlibrary{positioning, arrows.meta}
 \definecolor{refcolor}{RGB}{0, 0, 0}
 \usepackage[
@@ -62,6 +66,29 @@
   frame=single,
   breaklines=true,
   captionpos=b
+}
+
+\definecolor{leankeyword}{RGB}{0,0,180}
+\definecolor{leancomment}{RGB}{0,128,0}
+\definecolor{leanstring}{RGB}{163,21,21}
+
+\lstdefinelanguage{Lean4}{
+  morekeywords={
+    def, inductive, structure, theorem, variable, variables,
+    namespace, end, match, with, open, import, let, in, if, then, else,
+    Type, Prop, fun, forall, do, where, deriving, instance
+  },
+  sensitive=true,
+  morecomment=[l]--,
+  morestring=[b]",
+  morestring=[b]`,
+  keywordstyle=\color{leankeyword}\bfseries,
+  commentstyle=\color{leancomment}\itshape,
+  stringstyle=\color{leanstring},
+  basicstyle=\ttfamily\small,
+  columns=fullflexible,
+  keepspaces=true,
+  showstringspaces=false
 }
 
 \newcommand{\la}{\lambda}
