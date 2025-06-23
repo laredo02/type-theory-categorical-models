@@ -1,29 +1,25 @@
-
 \documentclass[12pt]{book}
+
+
+
 
 
 
 \input{tex/packages.tex}
 
-
-
-
-
 \begin{document}
 
 \chapter{\lCalc}
 
-
-
-In the early 20th century, mathematicians such as Bertrand Russell, David Hilbert, and Kurt Gödel were trying to set complete, consistent, and decidable foundations for mathematics. Within this context, Alonzo Church, in he's effort to formalize the notion of  computability, introduced a minimal symbolic language based upon function abstraction and function application, this system is now called \lcalc.
+In the early 20th century, mathematicians such as Bertrand Russell, David Hilbert, and Kurt Gödel were trying to set complete, consistent, and decidable foundations for mathematics. Within this context, Alonzo Church, in his effort to formalize the notion of  computability, introduced a minimal symbolic language based upon function abstraction and function application, this system is now called \lcalc.
 
 In 1936, Church used lambda calculus to address Hilbert’s Entscheidungsproblem --whether a mechanical method could determine the truth of any first-order logic statement. He proved no such algorithm exists, establishing the undecidability of first-order logic.
 
-One of the nuances formalized by the \lcalc \ is the disctinction between extensional and intensional equality. The extensional approach to equivalence states that two functions are equivalent if they share input output pairs for every posible input. It's intensional counterpart extends this notion of equality by requiring that the procedures that compute these pairs share complexity i.e. they take the same steps toward yielding a result.\footnote{
+One of the nuances formalized by the \lcalc \ is the distinction between extensional and intensional equality. The extensional approach to equivalence states that two functions are equivalent if they share input output pairs for every possible input. Its intensional counterpart extends this notion of equality by requiring that the procedures that compute these pairs share complexity i.e. they take the same steps toward yielding a result.\footnote{
   Let \( p \) be a sufficiently large prime, and let \( f, g : \mathbb{Z}_p \to \mathbb{Z}_p \) be defined by \( f(x) = x^2 \) and \( g(x) = \log_a(a^{x+2}) \), where \( a \in \mathbb{Z}_p^\times \) is a fixed primitive root. Although \( f \) and \( g \) are extensionally equal, i.e., they yield the same output for all inputs in \( \mathbb{Z}_p \), they are intensionally distinct. The function \( f \) performs a simple squaring operation, while \( g \) requires evaluating a discrete logarithm, intractable in general. \magenta{[Pedro Bonilla]}
 }
 
-Languages like LISP, Haskell, Erlang and others share the \lcalc \ as their theoretical foundation. It has has established itself as the backbone of functional programming. The introduction of type systems into the \lcalc \ has allowed us to computer-verify mathematical proofs and develop programs that are correct by construction.\footnote{Principles of the \lcalc \ and Type Theory underlie every computer assisted verification tool as well as proof assistants and kitchen table programming languages like C or Java.}
+Languages like LISP, Haskell, Erlang and others share the \lcalc \ as their theoretical foundation. The lambda calculus has established itself as the backbone of functional programming. The introduction of type systems into the \lcalc \ has allowed us to computer-verify mathematical proofs and develop programs that are correct by construction.\footnote{Principles of the \lcalc \ and Type Theory underlie every computer assisted verification tool as well as proof assistants and kitchen table programming languages like C or Java.}
 
 
 \newpage

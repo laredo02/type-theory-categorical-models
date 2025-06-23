@@ -1,5 +1,5 @@
 \section{\centering Untyped \lCalc}
-In order to get acquainted with the \lcalc, let us develop a simple example to familiarize ourselves before we begin with a more formal approach to this discipline. Consider the function $f(x) = x + 1$, the most straightforward way to express this using \lcalc \ would be $(\la x . x + 1 )$, where the lambda denotes that $x$ is being captured and used as a parameter to perform some computation\footnote{this is an e.g., $(\la x . x + 1 )$ is not a valid lambda term, see Definition \ref{def:lambda-terms-2}.}. Evaluating $f(2)$ using this newly created lambda term would look like this: $(\la x . x + 1)(2) \curly (2 + 1) \curly 3$. This process of reducing a $\la$-expression is referred to as \bred, it will be covered formally later in the chapter.
+In order to get acquainted with the \lcalc, let us develop a simple example to familiarize ourselves before we begin with a more formal approach to this discipline. Consider the function $f(x) = x + 1$, the most straightforward way to express this using \lcalc \ would be $(\la x . x + 1 )$, where the lambda denotes that $x$ is being captured and used as a parameter to perform some computation\footnote{this is an example, $(\la x . x + 1 )$ is not a valid lambda term, see Definition \ref{def:lambda-terms-2}.}. Evaluating $f(2)$ using this newly created lambda term would look like this: $(\la x . x + 1)(2) \curly (2 + 1) \curly 3$. This process of reducing a $\la$-expression is referred to as \bred, it will be covered formally later in the chapter.
 
 \begin{definition} The set of all lambda terms \( \La \) is defined inductively as follows:
   \label{def:lambda-terms-1}
@@ -40,7 +40,7 @@ Thus, the language for natural numbers in decimal notation is represented using:
                     &\;\texttt{|}\; \texttt{"("}\ \texttt{<term>}\ \texttt{<term>}\ \texttt{")"} \\
     \texttt{<variable>} &\;\texttt{::}\in \Vset
   \end{align*}
-  where \( \Sigma = \{ \la, ., (, )\} \cup \Vset \) and \( \La \subset \Sigma^* \). Through use of inductive types types\footnote{Inductive Data Types are inductively defined types built from sums (either this or that) of products (this and that). They let you define structured data with multiple forms and support safe, exhaustive pattern matching. }, this grammar can be implemented in Lean4:
+  where \( \Sigma = \{ \la, ., (, )\} \cup \Vset \) and \( \La \subset \Sigma^* \). Through use of inductive types types\footnote{Inductive Data Types are inductively defined types built from sums (either this or that) of products (this and that). They let you define structured data with multiple forms and support safe, exhaustive pattern matching.}, this grammar can be implemented in Lean4:
 
 \end{definition}
 \begin{remark}
@@ -113,7 +113,7 @@ The set of Free Variables $\functionfont{FV}$, those that will not get replaced 
 \begin{note} They are called combinators since having no free variables means that all variables are bound, and thus, a closed term just combines bound variables.
 \end{note}
 
-We aproach the definition for \aequiv \, to this end we have to introduce what it means to substitute a variable.
+We approach the definition for \aequiv \, to this end we have to introduce what it means to substitute a variable.
 
 \begin{definition}Capture-Avoiding Substitution Rules
   Let \( M, N \in \La \) and \( x, y, z \in \Vset \). The substitution \( M[x := N] \) is defined inductively as:
@@ -134,12 +134,13 @@ Hopefully the meaning of the first three rules is clear, they ancapsulate renami
   \[
     (\la y . \, y x) [x := (\la w . \, w \, y)] = (\la y . \, y \, (\la w. \, w \, y))
   \]
-  We run into a problem. See that the free variable $y$ became bound after the rename. Free and bound variables should mantain their freedom or their boundedness after the rename, hence the need for rule 6, where we rename the binding variable to avoid the name clash:
+  This is problematic since the free variable $y$ became bound after the rename. Free and bound variables should mantain their freedom or their boundedness after the rename, hence the need for rule 6, where we rename the binding variable to avoid the name clash:
   \[
     (\la y . \, y x) [x := (\la w . \, w \, y)] = (\la z . \, z \, (\la w. \, w \, y))
   \]
-  
+  The purpuse of the binding variable is to serve as a placeholder, therefore renaming does not affect the integrity of the expression, the variable gets replaced anyway when we perform a reduction.
 \end{example}
+In the previous example a bound variable is renamed to avoid a naming collision and avoid binding a previously free variable, \aequiv \ is the generalization of this technique, it defines equivalence up to renaming of binding variables.
 \begin{definition} Two lambda terms \( M, N \in \La \) are \aequivlt, written \( M =_\alpha N \), if they are structurally identical except for the names of bound variables.
   Formally:
   \[
@@ -213,7 +214,7 @@ where \( M, N \in \La \). For those not familiar with inference rules, here is a
 \end{itemize}
 \end{definition} 
 Single \bred s can be applied succesively, which induces the following definition
-\begin{definition} Zero or more step \bred, also called reflexive transitive closure. We write $M \step^* N$ if and only if there exists a sequence of one-step $\beta$-reductions starting from $M$ and ending at $N$.\footnote{The convention in the literature is to use $\rightarrow_\beta$ for \bred s $\twoheadrightarrow_\beta$ for multi-step \bred s. I prefer to use $\curly$ and $\curly^n$ since this allows me to use the superscript to note the number of steps in the process \bred \ e.g. $ (\la f. \la x . \, x) \, M \, N \curly^2 $ N. Instead of $\curly^n$ I use $\curly^*$ whenever the number of steps is undefined.}
+\begin{definition} Zero or more step \bred, the reflexive transitive closure of \bred. We write $M \step^* N$ if and only if there exists a sequence of one-step $\beta$-reductions starting from $M$ and ending at $N$.\footnote{The convention in the literature is to use $\rightarrow_\beta$ for \bred s $\twoheadrightarrow_\beta$ for multi-step \bred s. I prefer to use $\curly$ and $\curly^n$ since this allows me to use the superscript to note the number of steps in the process \bred \ e.g. $ (\la f. \la x . \, x) \, M \, N \curly^2 $ N. Instead of $\curly^n$ I use $\curly^*$ whenever the number of steps is undefined.}
   \label{def:zero-more-bred}
   \[
     M \equiv M_0 \step M_1 \step M_2 \step \cdots \step M_{n-1} \step M_n \equiv N
@@ -250,7 +251,7 @@ We now explore a key aspect of the \lcalc, in the jargon referred to as first-cl
 Taking a closer look, $A$, applies $f$ twice to $x$, as a consequence, $B$ is being applied twice to $C$. And so, very easily, we have implemented the $ x + 2 $ function via a sequential application of $x + 1$ to $C$.
 \end{example}
 \begin{remark}
-  As seen above, we can pass what we understand as conventional functions as arguments since they are treated alike.  One can intuitively apreciate the computational expresivenes this brings with it, and how this sintactic-semantic homogeneity sets the \lcalc \ apart from the classical set-theoretic approach to functions.
+  As seen above, we can pass what we understand as conventional functions as arguments since they are treated alike.  One can intuitively apreciate the computational expresivenes this brings with it, and how this syntactic-semantic homogeneity sets the \lcalc \ apart from the classical set-theoretic approach to functions.
 \end{remark}
 
 \begin{theorem} The Church-Rosser Property states that $\forall M, N_1, N_2 \in \La$:
@@ -299,6 +300,7 @@ The last and indeed the least important notion of equivalence:
 \end{array}
 \]
 
-  The abstraction \( \lambda x.\, (M\;x) \) performs the same operation as \( M \), so if \( x \) is not used freely within \( M \), the abstraction is redundant.
+The abstraction \( \lambda x.\, (M\;x) \) performs the same operation as \( M \), so if \( x \) is not used freely within \( M \), the abstraction is redundant. This is shown in \textsc{Eta}, the rest of the inference rules propagate this equivalence onto the whole term. Put into programming the idea becomes trivial: \orange{pseudo code example. given f of type , def g (n) := f n is equivalent to just calling g.}
+
 \end{definition}
 $\eta$-equivalence represents weak extensionality, since it does not encode observational equivalence. Two terms are observationally equivalent if they cannot be distinguished by any context that can be papplied to them.

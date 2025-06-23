@@ -1,7 +1,7 @@
 \subsection{\centering Fixed Point Combinators and Recursion}
 \label{sec:recursion-fixed-points}
-\magenta{Reintroduce the question from before}
-From the Church Rosser Property of confluence, we know that whenever a term has a normal form, this normal form must be unique. We still have not given an answer to whether all \lterms \ have a normal form.
+
+The Church Rosser Property labels the untyped \lcalc \ as a confluent system, therefore we know that whenever a term has a normal form it must be unique. \orange{what we did cover} We still have not given an answer to whether all \lterms \ have a normal form.
 
 The most straight forward way to test this, is to check whether there exists some term that reduces to itself, effectively creating a loop in the $\beta$-reduction chain so to speak. In more formal terms this means there exists some $M$ such that \( M \curly^n M \) with $ n > 0 $. It turns out \( \Omega \equiv (\la x . \, x \, x) (\la x . \, x \, x) \) fullfills this requirement. Let us inspect what goes on while $\beta$-reducing this term:
 \[
@@ -36,8 +36,7 @@ Here, when $b \neq 0$ the name gcd is used to refer to the same definition again
     \end{tabular}
   \]
 \end{example}
-This harmless idea satisfies an interesting property, namely that $ x = f(x) = f(f(x)) = f^n(x) $ effectively creating a chain every element $ f^{n+1}(x) = f(f^{n}(x))$, thus attaining self-reference without naming. This idempotent behaviour under application is important, since it showcases the ability of fixed points to induce recursion. Our quest now, is to find a term that simulates this behaviour. To do this, let us translate the definition for fixed point into the $\lambda$-world.
-\magenta{maybe use circ (i.e function composition) in the chain since it might have some meaning in the context of categories}.
+This harmless idea satisfies an interesting property, namely that $ x = f(x) = f(f(x)) = f^n(x) $ effectively creating a chain every element $ f^{n+1}(x) = f(f^{n}(x))$, thus attaining self-reference without naming. This idempotent behaviour under application is important, since it showcases the ability of fixed points to induce recursion. Our quest now, is to find a term that simulates this behavior. To do this, let us translate the definition for fixed point into the $\lambda$-world.
 \begin{definition}
   Given a lambda term \( L \in \La \), a term \( M \in \La \) is called a fixed point of \( L \) if \( M =_\beta L M \).
 \end{definition}
@@ -86,7 +85,7 @@ Now that nameless self-reference has been proven to exist within the the \lcalc,
   \]
   This is due to its lazy nature, this means that the argument $F$ is not evaluated until $Y$ is done unravelling i.e. never.
 \end{remark}
-To work arround this issue, several other combinators exist, one of the most notorious, the $Z$ combinator is defined next:
+To work around this issue, several other combinators exist, one of the most well-known, the $Z$ combinator is defined next:
 \begin{definition} $Z$ combinator
 \[
   Z \triangleq \la f.\, (\la x.\, f\, (\la v.\, x\, x\, v))\, (\la x.\, f\, (\la v.\, x\, x\, v))
