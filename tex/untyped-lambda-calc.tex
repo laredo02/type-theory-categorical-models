@@ -4,7 +4,7 @@ In order to get acquainted with the \lcalc, let us develop a simple example to f
 \begin{definition} The set of all lambda terms \( \La \) is defined inductively as follows:
   \label{def:lambda-terms-1}
   \begin{itemize}
-  \item (Variable) If \( x \in \Vset \), then \( x \in \La \).  
+  \item (Variable) If \( x \in \Vset \), then \( x \in \La \).
   \item (Abstraction) If \( x \in \Vset \) and \( M \in \La \), then \( (\la x. M) \in \La \).
   \item (Application) If \( M, N \in \La \), then \((M N) \in \La \).
   \end{itemize}
@@ -46,6 +46,9 @@ Thus, the language for natural numbers in decimal notation is represented using:
 \begin{remark}
   From the definition above we extract that \( \lambda x . x + 1 \notin \La \), given this circumstance, the need to find an accurate representation for numbers within this definition arises. See Definition \ref{def:church-naturals}
 \end{remark}
+\begin{notation}
+  We use uppercase letters, e.g. M, N, L, P, Q to denote elements of $\La$ and lowercase e.g. x, y, z to denote elements of $\Vset$.
+\end{notation}
 \begin{example} \label{ex:lambda-terms} Some examples of valid $\la$ terms generated using the grammar in \ref{def:lambda-terms-2}:
   \( y \),
   \( (\la x. (x x)) \),
@@ -53,10 +56,15 @@ Thus, the language for natural numbers in decimal notation is represented using:
   \( (((\la x. (x y)) (\la y. y)) z) \).
   The Lean4 counterpart for the second term is:
 \end{example}
-As a convention to avoid notational cluttering, the outermost parenthesis can be omitted e.g. $ ( \la x.x ) $ can be read as $ \la x.x $. Also, application is left-associative  and binds tighter than abstraction, so $M N P$ is parsed as $(M N) P$ and $\la x . M N$ means $\la x . (M N)$, not $(\la x . M) N$. Likewise, abstraction is right-associative e.g. $\la x . \la y . M$ is $\la x . (\la y . M)$ and binds more weakly than application. All these are just to keep notation straight-forward, the formal definition does not leave precedence under-specified thanks to parenthesis. Those interested in the implementation need not worry, as Lean4 enforces an explicit order on constructors.
+As a convention to avoid notational cluttering, the outermost parenthesis can be omitted e.g. $\la x.x $ is read as $ ( \la x.x ) $. Also, application is left-associative  and binds tighter than abstraction, so $M N P$ is parsed as $(M N) P$ and $\la x . M N$ means $\la x . (M N)$, not $(\la x . M) N$. Likewise, abstraction is right-associative e.g. $\la x . \la y . M$ is $\la x . (\la y . M)$ and binds more weakly than application. All these are just to keep notation straight-forward, the formal definition does not leave precedence under-specified thanks to parenthesis. Those interested in the implementation need not worry, as Lean4 enforces an explicit order on constructors. Below is a summary of common notational conventions used throughout the text:
+\begin{itemize}
+\item \( \la x . \, x \iff ( \la x . \, x ) \)
+\item \( M \, N \, P \iff (M \, N) \, P \)
+\item \( \la x. M \, N \iff \la x. (M \, N) \)
+\item \( \la x. \la y. f(x,y) \iff \la xy. f(x,y) \) (Currying)
+\end{itemize}
 \subsection{\centering Equivalence of terms}
-Having defined the language of the \lcalc, we move on to the mechanics of computation. To this end, several equivalences among terms will be defined, namely \aequiv, \bequiv, and \etaequiv
-. Every lambda term is made up of other smaller lambda terms, so it is only natural to define the set that contains all subterms of a given term:
+Having defined the language of the \lcalc, we move on to the mechanics of computation. To this end, several equivalences among terms will be defined, namely \aequiv, \bequiv, and \etaequiv. Firstly, and since every lambda term is made up of other smaller lambda terms, we define the set that contains all subterms of a given term:
 \begin{definition} Given $T \in \La$, $\functionfont{Sub} : \La \to \mathcal{P}(\Vset)$ maps a term to the set of it's subterms.
   \begin{align*}
     &\Sub x = \{x\} \\
@@ -130,7 +138,7 @@ We approach the definition for \aequiv \, to this end we have to introduce what 
   where \( z \notin \FV { M } \cup \FV { N } \).
 \end{definition}
 Hopefully the meaning of the first three rules is clear, they ancapsulate renaming in the context of variables and applications. The subsequent rules are about abstractions, rule four states that renaming a binding variable has no effect, renaming only modifies a term whenever the renamed variable is different from the binding variable. Rule five is the general case, that is, when the substitution just moves in together with the abstracted term. Then there is the last case, when the binding variable is a bound occurrence in the term we are substituting, which poses a problem, to see why, let us work through an example:
-\begin{example} If by mistake we substitute $x$ by \( (\la w . \, w \, y) \) in \( (\la y . \, y \, x ) \) using rule five, we get:
+\begin{example} If we mistakenly substitute $x$ by \( (\la w . \, w \, y) \) in \( (\la y . \, y \, x ) \) using rule five, we get:
   \[
     (\la y . \, y x) [x := (\la w . \, w \, y)] = (\la y . \, y \, (\la w. \, w \, y))
   \]
@@ -140,7 +148,16 @@ Hopefully the meaning of the first three rules is clear, they ancapsulate renami
   \]
   The purpuse of the binding variable is to serve as a placeholder, therefore renaming does not affect the integrity of the expression, the variable gets replaced anyway when we perform a reduction.
 \end{example}
-In the previous example a bound variable is renamed to avoid a naming collision and avoid binding a previously free variable, \aequiv \ is the generalization of this technique, it defines equivalence up to renaming of binding variables.
+In the previous example a bound variable is renamed to avoid a naming collision and avoid binding a previously free variable, \aequiv \ is the generalization of this technique, it defines equivalence up to renaming of binding variables. Also, in many of the upcoming definitions inference rules are used, here is a simple introduction for those unfamiliar with the concept:
+\[
+\inferrule*[right=\textsc{Name}]{
+  P_1 \quad P_2 \quad \cdots \quad P_n
+}{
+  C
+}
+\]
+where $P_i$ are judgments assumed to hold, $C$ is the judgment inferred from the premises and \textsc{Name} is an optional identification label.
+
 \begin{definition} Two lambda terms \( M, N \in \La \) are \aequivlt, written \( M =_\alpha N \), if they are structurally identical except for the names of bound variables.
   Formally:
   \[
@@ -164,9 +181,9 @@ In the previous example a bound variable is renamed to avoid a naming collision 
   $\alpha$-equivalence is an equivalence relation:
   \[
     \begin{aligned}
-      &(Reflexivity) \quad && M =_\alpha M \\
-      &(Symetry) \quad && M =_\alpha N \Rightarrow N =_\alpha M \\ 
-      &(Transitivity) \quad && M =_\alpha N \text{ and } N =_\alpha P \Rightarrow M =_\alpha P
+      &\text{(Reflexivity)} \quad && M =_\alpha M \\
+      &\text{(Transitivity)} \quad && M =_\alpha N \text{ and } N =_\alpha P \Rightarrow M =_\alpha P \\
+      &\text{(Symetry)} \quad && M =_\alpha N \Rightarrow N =_\alpha M
     \end{aligned}
   \]
 \end{definition}
@@ -207,11 +224,7 @@ It turns out we are better at naming variables than at working with numbers, whi
     { M_1\,M_2 \step M_1\,M_2' }
 \end{array}
 \]
-where \( M, N \in \La \). For those not familiar with inference rules, here is an alternative definition where \( L \in \La \)
-\begin{itemize}
-\item \( (\lam{x}{M})\,N \step M\subst{x}{N} \)
-\item If $M \step N$, then: \( M\,L \step N\,L; L\,M \step L\,N; \lam{x}{M} \step \lam{x}{N} \)
-\end{itemize}
+where \( M, N \in \La \).
 \end{definition} 
 Single \bred s can be applied succesively, which induces the following definition
 \begin{definition} Zero or more step \bred, the reflexive transitive closure of \bred. We write $M \step^* N$ if and only if there exists a sequence of one-step $\beta$-reductions starting from $M$ and ending at $N$.\footnote{The convention in the literature is to use $\rightarrow_\beta$ for \bred s $\twoheadrightarrow_\beta$ for multi-step \bred s. I prefer to use $\curly$ and $\curly^n$ since this allows me to use the superscript to note the number of steps in the process \bred \ e.g. $ (\la f. \la x . \, x) \, M \, N \curly^2 $ N. Instead of $\curly^n$ I use $\curly^*$ whenever the number of steps is undefined.}
@@ -221,7 +234,16 @@ Single \bred s can be applied succesively, which induces the following definitio
   \]
   That is, there exists an integer $n \geq 0$ and a sequence of terms $M_0, M_1, \dots, M_n$ such that: $ M_0 \equiv M $ and $ M_n \equiv N $ for all $ i $ with $ 0 \leq i < n $, we have $ M_i \step M_{i+1} $.
 \end{definition}
-The process of succesively $\beta$-reducing a term leads raises the question of whether all terms can be reduced indefinitly. We know the answer to this, since for instance, variables in $\Vset$ cannot be reduced. The subsequent question is then, Do all all terms have some kind of normal form that cannot be reduced further? This is answered in Section \myref{sec:recursion-fixed-points}.
+The process of succesively $\beta$-reducing a term leads raises the question of whether all terms can be reduced indefinitly. We know the answer to this, since for instance, variables in $\Vset$ cannot be reduced. The subsequent question is then, Do all all terms have some kind of normal form that cannot be reduced further? This is answered in Section \myref{sec:recursion-fixed-points}. To this end we introduce a formal definition of normal form that will allow us to gain insight into the normalization properties of the \lcalc.
+
+\begin{definition} A \(\lambda\)-term \(M\) is in normal form if there is no term \(N\) such that \( M \curly N \). Equivalently, \(M\) contains no subterm of the form \( (\la x . \, P) \, Q \) that can be reduced by beta-reduction. In other words, \(M\) is irreducible under beta-reduction.
+\end{definition}
+
+\begin{definition}
+A reducible expression, or redex for short, is any subterm of the form 
+\( (\la x . \, P) \, Q \). Such a term can be reduced by a single beta-reduction step, resulting in \( P[x := Q] \).
+\end{definition}
+
 \begin{definition} \bequiv \ relation, equivalence of \lterms \ through \bred s.
   \[
     M =_\beta N \iff M \step^* N \lor N \step^* M

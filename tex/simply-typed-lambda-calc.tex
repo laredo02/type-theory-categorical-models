@@ -1,12 +1,73 @@
 
 \section{\centering Simply Typed \lCalc}
-\orange{
-The Untyped Lambda Calculus in computationally equivalent to a  Turing machine. However, with great computational power comes limited decidability of properties, leading to non-termination, or expressions such as $x(\lambda y . y)$, whose meaning is unclear.
-A classic example of non-termination is the $Y$ combinator, however, the Simply Typed Lambda Calculus does not allow such expressions, as its type system is unable to assign a valid type to them.
-\magenta{if there is a proof of turing completeness, add how if we remove combinators then we remove turing completeness i.e. finite tape $\neq$ turing complete}
-To understand why, consider the role of function types: in the world of functions, a function maps values from a domain to a range. The Simply Typed Lambda Calculus enforces this structure explicitly, ensuring that every function application is well-typed and preventing self-application patterns that would lead to paradoxes or infinite loops.
-Having grasped the untyped lambda calculus's Turing completeness and ability to compute all computable functions, we now seek properties related to decidability. To this end, we introduce the simply typed lambda calculus. Although it possesses less computational power than its untyped counterpart, it offers attractive features regarding decidability that will be useful later on.
-}
+
+We covered the untyped \(\lambda\)-calculus, highlighting its strengths and limitations. This  
+section introduces the notion of typing, which restricts its expressiveness while  
+improving the tractability of studying its properties. The idea of typing arises  
+from the usual definition of a function, understood as a mapping between elements of sets. For example, consider a function  
+\( f : A \to B \) defined by \( a \mapsto f(a) \), to develop the analogy.
+
+Notice how we are able to recognize \(A\) as the domain and \(B\) as the codomain, and how the mapping  
+is meaningful only within this context—otherwise \( f \) would lack sense and  
+purpose. Hence, it is important to first restrict the environment in which \( f \)  
+lives and then remain within it while defining the mapping. In this instance,  
+that means using constructions and operations that exist within the realms of  
+\(A\) and \(B\).
+
+In the context of the \(\lambda\)-calculus, types serve as a means of restriction, similar  
+to how we use logical predicates to define sets. Just as \( f : \mathbf{?} \to \mathbf{?} \) is refined  
+to \( f : A \to B \) by specifying requirements on the arguments and ensuring  
+properties of the outputs, we use types to impose requirements on the arguments  
+of an abstraction and to ensure properties of the reduction process of that term.
+
+Since the \(\lambda\)-calculus treats all terms as first-class citizens, attempting to impose  
+restrictions directly on arguments is not effective. Instead, we define restrictions  
+on all terms by pairing each term with additional information called a \emph{type}.  
+This tells us about the nature of a given term, which may be of two kinds: a simple  
+type or a function type (written as \(\to\)). Because \(\Lambda\) is infinite, we require  
+a set of rules that automatically assigns types to terms.
+
+Introducing a typing system into the \(\lambda\)-calculus splits \(\Lambda\) into two categories:  
+Typable and Non-typable terms. These sets are disjoint, and the separation is strict  
+and exhaustive. This simple type system classifies expressions such as  
+\( x (\lambda y.y) \) or \( Y \) as untypable, while expressions such as \( \lambda x.x \) have type  
+\(\alpha \to \alpha\).
+
+Let us now proceed by introducing some of the necessary concepts required to type \(\lambda\)-terms.
+
+\begin{definition} The set of all types, $\Ty$:
+  
+  Let $\Tb = \{ \alpha, \beta, \gamma, \dots \}$ be the set of all basic type, usually denoted using symbols from the greek alphabet.
+  
+  ...
+  
+  \begin{align*}
+    \texttt{<type>} &\;\texttt{::=}\; \texttt{<atom>} \\
+                    &\;\texttt{|}\; \texttt{"("}\ \texttt{<type>}\ \texttt{"$\to$"}\ \texttt{<type>}\ \texttt{")"} \\
+    \texttt{<atom>} &\;\texttt{::}\in \Tb
+  \end{align*}
+\end{definition}
+
+
+
+%\orange{
+%The Untyped Lambda Calculus in computationally equivalent to a  Turing machine. However, with great computational power comes limited decidability of properties, leading to non-termination, or expressions such as $x(\lambda y . y)$, whose meaning is unclear.
+%A classic example of non-termination is the $Y$ combinator, however, the Simply Typed Lambda Calculus does not allow such expressions, as its type system is unable to assign a valid type to them.
+%\magenta{if there is a proof of turing completeness, add how if we remove combinators then we remove turing completeness i.e. finite tape $\neq$ turing complete}
+%To understand why, consider the role of function types: in the world of functions, a function maps values from a domain to a range. The Simply Typed Lambda Calculus enforces this structure explicitly, ensuring that every function application is well-typed and preventing self-application patterns that would lead to paradoxes or infinite loops.
+%Having grasped the untyped lambda calculus's Turing completeness and ability to compute all computable functions, we now seek properties related to decidability. To this end, we introduce the simply typed lambda calculus. Although it possesses less computational power than its untyped counterpart, it offers attractive features regarding decidability that will be useful later on.
+%}
+
+\orange{typing a la church, typing a la curry}
+
+
+
+
+
+
+
+
+
 
 
 

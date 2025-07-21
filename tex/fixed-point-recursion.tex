@@ -36,7 +36,7 @@ Here, when $b \neq 0$ the name gcd is used to refer to the same definition again
     \end{tabular}
   \]
 \end{example}
-This harmless idea satisfies an interesting property, namely that $ x = f(x) = f(f(x)) = f^n(x) $ effectively creating a chain every element $ f^{n+1}(x) = f(f^{n}(x))$, thus attaining self-reference without naming. This idempotent behaviour under application is important, since it showcases the ability of fixed points to induce recursion. Our quest now, is to find a term that simulates this behavior. To do this, let us translate the definition for fixed point into the $\lambda$-world.
+This harmless idea satisfies an interesting property, namely that $ x = f(x) = f(f(x)) = f^n(x) $ effectively creating a chain where every element $ f^{n+1}(x) = f(f^{n}(x))$, thus attaining self-reference without naming. This idempotent behaviour under application is important, since it showcases the ability of fixed points to induce recursion. Our quest now, is to find a term that simulates this behavior. To do this, let us translate the definition for fixed point into the $\lambda$-world.
 \begin{definition}
   Given a lambda term \( L \in \La \), a term \( M \in \La \) is called a fixed point of \( L \) if \( M =_\beta L M \).
 \end{definition}
@@ -101,3 +101,14 @@ To work around this issue, several other combinators exist, one of the most well
     \end{aligned}
   \]
 \end{example}
+
+
+
+
+
+
+
+
+
+
+

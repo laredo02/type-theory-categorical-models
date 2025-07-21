@@ -1,10 +1,141 @@
 
-\begin{definition}
-A \emph{category} \( \cat{C} \) consists of:
-\begin{itemize}[nosep]
-  \item A class \( \Ob(\cat{C}) \) of \emph{objects},
-  \item For each pair \( A, B \in \Ob(\cat{C}) \), a set \( \Hom_{\cat{C}}(A, B) \) of \emph{morphisms} (also called \emph{arrows}) from \( A \) to \( B \),
-\end{itemize}
-such that composition of morphisms and identity morphisms are defined and satisfy associativity and unit laws.
+\begin{definition} A category $\mathcal{C}$ consists of:
+  \begin{itemize}
+  \item A collection of objects
+  \item A collection of arrows or morphisims where each arrow $f$ has a domain object $dom(f)$ and a codomain object $cod (f)$. These can be defined using $f : A \to B $ to signify $dom(f) = A$ and $cod(f) = B$
+  \item A composition operator assigning to each pair of arrows $f$ and $g$, with $cod(f) = dom(g)$, a composite arrow $g \circ f : dom(f) \to cod (g)$ satisfying the following associative law:
+    \[
+      h \circ (g \circ f) = (h \circ g) \circ f
+    \]
+    where $f : A \to B, g : B \to C, h : C \to D$ are arrows of a category
+  \item For each object $A$, an identity arrow $id_A : A \to A$ satisfying the following identity law:
+    \[
+      id_B \circ f = f \quad f \circ id_A = f 
+    \]
+    for any $f : A \to B$
+  \end{itemize}
 \end{definition}
+\begin{remark}
+  \orange{prev definition contemplates only small categories. usual categories are defined in terms of collections. that is a class of arrows and objects for example. we will just deal with small categories, sets of arrows and objects}
+\end{remark}
+\begin{example} The most elemental category is the category that has no elements and no arrows, it is commonly represented with a $0$. Category $1$ contains one object and one identity arrow, as required by the definition. Category $2$ contains three arrows, the identities and one arrow from $1$ to $2$. Category $3$ builds up on this as is observed in the following diagram:
+  \[
+    \begin{tikzcd}
+      1 \arrow[loop right, "id_1"] & & & & & 2 \arrow[d] \arrow[loop right, "id_2"] \\
+      1 \arrow[r] \arrow[loop left, "id_1"] & 2 \arrow[loop right, "id_2"] & & &1 \arrow[r] \arrow[ru] \arrow[loop left, "id_1"] & 3 \arrow[loop right, "id_3"]
+    \end{tikzcd}
+  \]
+\end{example}
+\begin{example} In this example we show that \textbf{Set} is a category where objects correspond to sets $A,B,C,\dots$ and arrows to functions.
+  For $f: A \to B$ and $g: B \to C$, composition of functions is $(g \circ f)(a) = g(f(a))$, which is a function $ g \circ f : A \to C$.
+  Composition is associative since for $h: C \to D$ we have that: \( h \circ (g \circ f)(a) = h(g(f(a))) = (h \circ g)(f(a)) = (h \circ g) \circ f(a) \).
+  Lastly, each set $A$, the identity morphism is $\mathrm{id}_A(a) = a$, satisfying $f \circ \mathrm{id}_A = f = \mathrm{id}_B \circ f$.
+  Therefore, $\mathbf{Set}$ is a category. \qed
+\end{example}
+\begin{example}
+In this example we show that any partially ordered set $(P, \leq)$ can be viewed as a category $\mathbf{Pos}$ whose objects are elements of $P$ and there is a unique arrow $p \to q$ 
+if and only if $p \leq q$.  
+Composition is defined by transitivity: if $p \leq q$ and $q \leq r$, then $p \leq r$, 
+so the composite $p \to r$ exists and is unique.  
+Associativity holds automatically since there is at most one arrow between any two objects.  
+Lastly, each $p \in P$ has an identity arrow $p \to p$ that corresponds to the reflexivity property of partial orders.
+Therefore, every poset defines a category. \qed
+\end{example}
+\orange{There exist several well known categories tied to mathematics and compite. Category of categories... Monoid}
+
+\begin{table*}[h!]
+\centering
+\begin{tabular}{ll}
+\hline
+\textbf{Category} & \textbf{Description} \\
+\hline
+$\mathbf{Set}$      & Sets as objects, functions as morphisms. \\
+$\mathbf{Grp}$      & Groups and group homomorphisms. \\
+$\mathbf{Ring}$     & Rings and ring homomorphisms. \\
+$\mathbf{Mod}_R$    & Modules over a ring $R$ and $R$-linear maps. \\
+$\mathbf{Vect}_k$   & Vector spaces over field $k$ and linear maps. \\
+$\mathbf{Top}$      & Topological spaces and continuous functions. \\
+$\mathbf{Man}$      & Smooth manifolds with smooth maps. \\
+$\mathbf{Hilb}$     & Hilbert spaces and bounded linear maps. \\
+\hline
+\end{tabular}
+\caption{Key mathematical categories.}
+\label{tab:math-categories}
+\end{table*}
+
+\begin{table*}[h!]
+\centering
+\begin{tabular}{ll}
+\hline
+\textbf{Category} & \textbf{Description} \\
+  \hline
+$\mathbf{Mon}$ & Monoids and monoid homomorphisms. \\
+$\mathbf{CPO}$        & Complete partial orders and continuous maps. \\
+$\mathbf{Dom}$        & Domains as posets with Scott-continuous maps. \\
+$\mathbf{Rel}$        & Sets and binary relations as morphisms. \\
+$\mathbf{Pfn}$        & Sets and partial functions as morphisms. \\
+$\mathbf{Par}$        & Sets and partial maps (generalized morphisms). \\
+$\mathbf{Kl}(T)$      & Kleisli category of a monad $T$ on a base category. \\
+$\mathbf{Endo(Set)}$  & Endofunctors on the category of sets. \\
+\hline
+\end{tabular}
+\caption{Key categories in computer science.}
+\label{tab:cs-categories}
+\end{table*}
+
+\orange{to build some intuition on why categories relate to programs}
+\magenta{que alguien que controle corrija el siquiente ejemplo q es mas inventado que que los gamusinos }
+
+\begin{example}
+Let us consider a simple functional
+programming language with the following types:
+\[
+  T ::= \mathrm{Nat} \mid \mathrm{Bool} \mid T \times T \mid T \to T
+\]
+The type system is closed under product and function type
+constructors. A valid compound type is \( (\mathrm{Nat} \times \mathrm{Bool}) \to \mathrm{Nat} \).
+A categorical interpretation of this scenario reveals types are objects and functions morphisms.
+
+Identity \(\mathrm{id}_A : A \to A\) can be defined as \( \mathrm{id}_A = \lambda x\,{:}\,A . \, x  \), which is well-typed. Identity laws are verified trivially: \( \mathrm{id}_B \circ f = f = f \circ \mathrm{id}_A \).
+
+Compositionality is defined as sequential application of functions that share domain and codomain through \(f : A \to B\) and \(g : B \to C\) like \(g \circ f : A \to C\) by \(g \circ f = \lambda x\,{:}\,A . \, g (f(x))\), which is well-typed by function application.
+
+Composition is associative due to \(\beta\)-equivalence in lambda calculus:
+\[
+h \circ (g \circ f) = \lambda x{:}A . h (g (f(x))) = (h \circ g) \circ f
+\]
+Therefore, \(\mathbf{FL}\) satisfies all axioms of a category.
+\end{example}
+
+Aside from defining categories from mathematical objects, categores can be build from other categories. One way to do this is via opposite categories.
+
+\begin{definition} For a category $\mathcal{C}$, the opposite category $\mathcal{C}^{op}$ is defined by:
+\begin{itemize}
+    \item $\mathrm{Ob}(\mathcal{C}^{op}) = \mathrm{Ob}(\mathcal{C})$,
+    \item For $A,B \in \mathrm{Ob}(\mathcal{C})$, $\mathcal{C}^{op}(A,B) = \mathcal{C}(B,A)$,
+    \item Composition is reversed: if $f : A \to B$ and $g : B \to C$ in $\mathcal{C}$, then
+    \[
+    f^{op} \circ g^{op} = (g \circ f)^{op}.
+    \]
+\end{itemize}
+\end{definition}
+
+
+
+
+
+
+\begin{definition}
+  \label{def:monos-epis} Let \( g_1, g_2 : X \to A \) (resp. \( h_1, h_2 : B \to Y \)). An arrow \( f : A \to B \) in \( \mathcal{C} \) is a monomorphism (resp. epimorphism) if:
+\[
+  f \circ g_1 = f \circ g_2 \ \implies g_1 = g_2 \quad \text{(resp. } h_1 \circ f = h_2 \circ f \implies h_1 = h_2 \text{)}
+\]
+
+\end{definition}
+
+\begin{note}
+  Monomorphisims generalize the notion of injectivity, while epimorphisms are the categorical generalization of surjectivity.
+\end{note}
+
+
 
