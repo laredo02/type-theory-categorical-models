@@ -1,12 +1,12 @@
 \documentclass[12pt]{book}
 
-
-
-
-
-
-
-
+%\usepackage{tgtermes}            % Times-like font from TeX Gyre
+%\usepackage{tgpagella}           % Palatino-like font
+%\usepackage{tgbonum}             % Bookman-like font
+%\usepackage{bookman}
+%\usepackage{libertine}           % Linux Libertine + math
+%\usepackage{erewhon}             % Utopia alternative
+\usepackage{fourier}             % Utopia text + Fourier math
 
 \input{tex/packages.tex}
 
@@ -24,7 +24,6 @@ One of the nuances formalized by the \lcalc \ is the distinction between extensi
 
 Languages like LISP, Haskell, Erlang and others share the \lcalc \ as their theoretical foundation. The lambda calculus has established itself as the backbone of functional programming. The introduction of type systems into the \lcalc \ has allowed us to computer-verify mathematical proofs and develop programs that are correct by construction.\footnote{Principles of the \lcalc \ and Type Theory underlie every computer assisted verification tool as well as proof assistants and kitchen table programming languages like C or Java.}
 
-
 \newpage
 \input{tex/untyped-lambda-calc.tex}
 \newpage
@@ -40,12 +39,18 @@ Languages like LISP, Haskell, Erlang and others share the \lcalc \ as their theo
 
 \chapter{Category Theory}
 
-Category theory abstracts the notion of internal structure and studies mathematical objects indirectly through connections to other objects. In practical terms, instead of studying objects in isolation, category theory shifts the focus onto morphisms among objects. This means that instead of studying mathematical entities from a definitional stand point, it emphasizes the importance of how constructions relate to one another.
+Category theory abstracts the notion of internal structure and studies mathematical objects indirectly through their connections to other objects. In practical terms, instead of studying objects in isolation, category theory shifts the focus onto morphisms among objects, and that instead of studying mathematical entities from a definitional stand point, it emphasizes the importance of how constructions relate to one another.
 
-It is against the rules of categorical thinking to manipulate mathematical objets directly, a categorical lens must be used. This categorical lens abstracts away the details of mathematical constructions but enables a more general and abstract toolkit to tacke problems. This perspective unifies many areas of mathematics under a common language.
+The rulebook of categorical thinking keeps us away from manipulating mathematical objets directly, it also offers a categorical lens as a tool to look at constructions in a holistic spirit. This lens abstracts away the details of mathematical constructions but enables a more general approach to  problems. This perspective unifies many areas of mathematics under a common language.
 
-Several topics in computer science are deeply related to category theory, we only mention CCC's and LCCC's in the effort not to give away the purpuse of the chapter.
+Category theory offers extreme generality and has great power when it comes to unifying seemingly unrelated fields. Which often misleads people into interpreting it as a unifying theory of mathematics that has no practical applications, when in reality it is more like a tool used to create blueprints that describe mathematical environments and their properties. It is also commonly used to give structure to patterns that repeat within different fields of mathematics. In some instances, category theory serves as a medium for transporting mathematical statements—such as theorems or lemmas—between domains. A categorical formulation of such results can often be translated to other contexts via functors or equivalences of categories.
 
+One of the fields that benefits from the practical applications of categorical reasoning is computer science, deeply related to category theory through type theory, intuitionistic logic and natural deduction. We only mention CCC's and LCCC's as relevant constructions in the effort not to give away the purpose of the chapter.
+
+The general and unifying nature of categories brings us closer to the central focus of this work. In addition, most of what has been covered this far has a categorical representation that enables us to provide a unified approach to the already familiar type theory and intuitionistic logic. More on this in the following chapters.
+
+
+\newpage
 \input{tex/category-theory.tex}
 
 \end{document}
